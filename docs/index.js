@@ -1,9 +1,25 @@
 var c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
 
+const drawHexagon =(x, y, s, color)=>{
+	ctx.fillStyle = color
+	ctx.strokeStyle = "#000000"
+	ctx.beginPath()
+	ctx.moveTo(x+s/2, y)
+	ctx.lineTo(x+s, y+s/4)
+	ctx.lineTo(x+s, y+s/2)
+	ctx.lineTo(x+s/2, y+s*3/4)
+	ctx.lineTo(x, y+s/2)
+	ctx.lineTo(x, y+s/4)
+	ctx.lineTo(x+s/2, y)
+	ctx.closePath()
+	ctx.fill()
+	ctx.stroke()
+}
 
+//terrain generation
 var simplex = new SimplexNoise()
-let krat = 50
+let krat = 70
 const generate =()=>{
 	let T = []
 	for(let i=0; i<krat; i++){
@@ -29,31 +45,25 @@ const loop=()=>{
 	let _H = window.innerHeight
 	c.width = _W
 	c.height = _H
-	
 	tick += 1
 	requestAnimationFrame(loop)
 	//clear screen
 	ctx.fillStyle = "#0000FF"
 	ctx.fillRect(0, 0, _W, _H)
 
+	let offsetH = -_H
+	let offsetW = _W/2
+
 	//render Tarrain
 	for(let i=0; i<T.length; i++){
 		for(let j=0; j<T[i].length; j++){
 			let a = _W/krat
-			let offsetW = 0
-			let offsetH = 0
 			
 			if(T[i][j] == 1){
-				ctx.fillStyle = "#19bf1e"
-				ctx.strokeStyle = "#000000"
-				ctx.fillRect(j*a+offsetW, i*a+offsetH, a, a)
-				ctx.strokeRect(j*a+offsetW, i*a+offsetH, a, a)
+				drawHexagon(offsetW+a*(j-i), offsetH+a*(j+i), a*2, "#19bf1e")
 			}
 			if(T[i][j] >= 2){
-				ctx.fillStyle = "darkgreen"
-				ctx.strokeStyle = "#000000"
-				ctx.fillRect(j*a+offsetW, i*a+offsetH, a, a)
-				ctx.strokeRect(j*a+offsetW, i*a+offsetH, a, a)
+				drawHexagon(offsetW+a*(j-i), offsetH+a*(j+i), a*2, "darkgreen")
 			}
 		}
 	}
