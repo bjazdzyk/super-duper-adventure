@@ -1,9 +1,7 @@
 var c = document.getElementById("myCanvas");
 var ctx = c.getContext("2d");
-let _W = window.innerWidth
-let _H = window.innerHeight
-c.width = _W
-c.height = _H
+
+
 
 let T = []
 {
@@ -39,7 +37,7 @@ let T = []
 			for(let j=0; j<seed2.length; j++){
 				T[i][j]=0
 			}
-			
+
 			for(let j=0; j<seed[i].charCodeAt(0)-47; j++){
 				T[i][j] += 1
 			}
@@ -71,7 +69,7 @@ let T = []
 	l = T2.length
 	for(let i=0; i<l; i++){
 		for(let j=0; j<l; j++){
-			T[j+l/2+5][l/2-i+4] = T2[i][j]
+			T[j+l/2+5][l/2-i+4] = T2[j][i]
 		}
 	}
 	l = T3.length
@@ -83,13 +81,18 @@ let T = []
 	l = T4.length
 	for(let i=0; i<l; i++){
 		for(let j=0; j<l; j++){
-			T[l/2-j+4][i+l/2+5] = T4[i][j]
+			T[l/2-j+4][i+l/2+5] = T4[j][i]
 		}
 	}
 }//terrain generation
 
 let tick = 0
 const loop=()=>{
+	let _W = window.innerWidth
+	let _H = window.innerHeight
+	c.width = _W
+	c.height = _H
+	
 	tick += 1
 	requestAnimationFrame(loop)
 	//clear screen
