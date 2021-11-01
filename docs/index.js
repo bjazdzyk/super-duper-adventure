@@ -11,13 +11,13 @@ const drawHexagon =(x, y, s, color, type = "normal")=>{
 		ctx.strokestyle = "#000000"
 	}
 	ctx.beginPath()
-	ctx.moveTo(x+s/2, y)
-	ctx.lineTo(x+s, y+s/4)
-	ctx.lineTo(x+s, y+s/2)
-	ctx.lineTo(x+s/2, y+s*3/4)
-	ctx.lineTo(x, y+s/2)
-	ctx.lineTo(x, y+s/4)
+	ctx.moveTo(x, y-s/2)
+	ctx.lineTo(x+s/2, y-s/4)
 	ctx.lineTo(x+s/2, y)
+	ctx.lineTo(x, y+s/4)
+	ctx.lineTo(x-s/2, y)
+	ctx.lineTo(x-s/2, y-s/4)
+	ctx.lineTo(x, y-s/2)
 	ctx.closePath()
 	if(type == "normal"){
 		ctx.stroke()
@@ -25,6 +25,20 @@ const drawHexagon =(x, y, s, color, type = "normal")=>{
 	}else if(type == "cursor"){
 		ctx.stroke()
 	}
+}
+const drawObject = (x, y, s, type)=>{
+	if(type = "forest"){
+		ctx.fillStyle = "#4f2602"
+		ctx.strokeStyle = "black"
+		ctx.fillRect(x-s/2, y-s/2, s, s)
+		ctx.strokeRect(x-s/2, y-s/2, s, s)
+
+		ctx.fillStyle = "#248016"
+		ctx.beginPath();
+		ctx.arc(x, y-s*3/4, s, 0, 2 * Math.PI);
+		ctx.fill();
+		ctx.stroke();
+	} 
 }
 
 const coords =(x, y)=>{
@@ -35,36 +49,56 @@ const coords =(x, y)=>{
 
 var simplex = new SimplexNoise()
 let krat = 50
+console.log(simplex.noise2D(krat/2, krat/2))
 
 const generate =()=>{
+	//biomes
 	let T = []
 	for(let i=0; i<krat; i++){
 		T[i] = []
 	}
+	//objects
+	let O = []
+	for(let i=0; i<krat; i++){
+		O[i] = []
+	}
 	for(let i=0; i<krat; i++){
 		for(let j=0; j<krat; j++){
 			let x = simplex.noise2D(i/12, j/12)
-			T[i][j] = Math.floor(x*2+1)//1-3
-			if(T[i][j] == 3){
-				T[i][j] = 2
-			}
-			if(x*2+1 > 1 && x*2+1 < 1.25){
-				T[i][j] = 4
-			}
+			// x*2+1  ->  1 - 3
+			if(x > 0){
+				if(x*2+1 >= 1 && x*2+1 < 2){
+					T[i][j] = 1 //plains
+				}else if(x*2+1 >= 2 && x*2+1 <= 3){
+					T[i][j] = 2
+				}else{
+					T[i][j] = 0
+				}
+				if(x*2+1 > 1 && x*2+1 < 1.25){
+					T[i][j] = 4 // beach
+				}
 
+
+				if(x*2+1 > 1.6 && x*2+1 < 1.8){
+					if(T[i][j] != 0){
+						O[i][j] = 1 // forest
+					}
+				}
+			}
 		}
 	}
-	return T
+	return {terrain: T, objects: O}
 }
 
 
 
-let T = generate()
+let T = generate().terrain
+let O = generate().objects
 let tick = 0
 let lastTick = 0
 let focus = {x:Math.floor(krat/2), y:Math.floor(krat/2)}
 let cursor = {x:0, y:0}
-let d = 1
+let d = [1, 1]
 const loop=()=>{
 	tick += 1
 	lastTick
@@ -80,15 +114,17 @@ const loop=()=>{
 			cursor.x -=1
 		}if(keys["ArrowUp"]){
 			lastTick = tick
-			cursor.x -= (d+1)%2
-			cursor.y -= d%2
-			d+=1
-			console.log(cursor.x,cursor.y)
+			d[0]+=d[1]
+			d[1] = 1
+			cursor.x -= (d[0]+1)%2
+			cursor.y -= d[0]%2
+
 		}if(keys["ArrowDown"]){
 			lastTick = tick
-			cursor.x += (d+1)%2
-			cursor.y += d%2
-			d+=1
+			d[0]+= 1+d[1]
+			d[1] = 0
+			cursor.x += (d[0]+1)%2
+			cursor.y += d[0]%2
 		}
 	}
 
@@ -119,6 +155,11 @@ const loop=()=>{
 			if(T[i][j] == 4){
 				drawHexagon(offsetW+a*coords(i, j).x, offsetH+a*coords(i, j).y, a*2, "yellow")
 				//beach
+			}
+
+			if(O[i][j] == 1){
+				drawObject(offsetW+a*coords(i, j).x, offsetH+a*coords(i, j).y, 10, "forest")
+				//forest
 			}
 		}
 	}
