@@ -43,8 +43,15 @@ const generate =()=>{
 	}
 	for(let i=0; i<krat; i++){
 		for(let j=0; j<krat; j++){
-			let x = simplex.noise2D(i/9, j/9)
-			T[i][j] = Math.floor(x*2+1)
+			let x = simplex.noise2D(i/12, j/12)
+			T[i][j] = Math.floor(x*2+1)//1-3
+			if(T[i][j] == 3){
+				T[i][j] = 2
+			}
+			if(x*2+1 > 1 && x*2+1 < 1.25){
+				T[i][j] = 4
+			}
+
 		}
 	}
 	return T
@@ -103,9 +110,15 @@ const loop=()=>{
 		for(let j=0; j<T[i].length; j++){
 			if(T[i][j] == 1){
 				drawHexagon(offsetW+a*coords(i, j).x, offsetH+a*coords(i, j).y, a*2, "#19bf1e")
+				//plains
 			}
-			if(T[i][j] >= 2){
+			if(T[i][j] == 2){
 				drawHexagon(offsetW+a*coords(i, j).x, offsetH+a*coords(i, j).y, a*2, "darkgreen")
+				//mountains
+			}
+			if(T[i][j] == 4){
+				drawHexagon(offsetW+a*coords(i, j).x, offsetH+a*coords(i, j).y, a*2, "yellow")
+				//beach
 			}
 		}
 	}
