@@ -1,0 +1,14 @@
+{
+  "name": "super-duper-adventure",
+  "version": "1.0.0",
+  "scripts": {
+    "start": ""
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "html-webpack-plugin": "^5.5.0",
+    "simplex-noise": "^3.0.0",
+    "webpack": "^5.62.1",
+    "webpack-dev-middleware": "^5.2.1"
+  }
+}
