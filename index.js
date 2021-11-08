@@ -1,21 +1,6 @@
 const webpack = require('webpack')
 const middleware = require('webpack-dev-middleware')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const path = require('path')
-const compiler = webpack({
-  mode: 'development',
-  entry: './main.js',
-  output: {
-    filename: '[contenthash].js'
-  },
-  plugins: [
-    new HtmlWebpackPlugin({
-      filename: 'index.html',
-      template: path.join(__dirname, '/index.html'),
-      inject: 'head'
-    })
-  ]
-})
+const compiler = webpack(require('./src/webpack.dev.js'))
 const express = require('express')
 const app = express()
 
