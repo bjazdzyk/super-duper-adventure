@@ -1,0 +1,19 @@
+{
+  "name": "super-duper-adventure",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "node index.js",
+    "build": "webpack --config src/webpack.prod.js",
+    "clean": "rimraf dist/*"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "html-webpack-plugin": "^5.5.0",
+    "simplex-noise": "^3.0.0",
+    "webpack": "^5.62.1",
+    "webpack-dev-middleware": "^5.2.1"
+  },
+  "devDependencies": {
+    "webpack-cli": "^4.9.1"
+  }
+}
