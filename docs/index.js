@@ -27,7 +27,7 @@ const drawHexagon =(x, y, s, color, type = "normal")=>{
 	}
 }
 const drawObject = (x, y, s, type)=>{
-	if(type = "forest"){
+	if(type == "forest"){
 		ctx.fillStyle = "#4f2602"
 		ctx.strokeStyle = "black"
 		ctx.fillRect(x-s/2, y-s/2, s, s)
@@ -57,7 +57,7 @@ const strcoords =(x, y)=>{
 //terrain generation
 
 var simplex = new SimplexNoise()
-let krat = 30
+let krat = 40
 
 //biomes
 let T = {}
@@ -65,36 +65,47 @@ let T = {}
 //objects
 let O = {}
 
+const generationLogics =(x)=>{
+	let R = {};
+	if(x > 0){
+		if(x*2+1 >= 1 && x*2+1 < 2){
+			R.T = 1 //plains
+		}else if(x*2+1 >= 2 && x*2+1 <= 3){
+			R.T = 2 //mountains
+		}else{
+			R.T = 0
+		}
+		if(x*2+1 > 1 && x*2+1 < 1.25){
+			R.T = 4 // beach
+		}
+
+
+		if(x*2+1 >= 1.25 && x*2+1 < 2  && Math.floor((x*2+1)*10000)%3==0){
+			R.O = 1 // forest
+		}
+	}else{
+		R.T = 0
+		R.O = 0
+	}
+	return R;
+}
+
 const generateStartingTerrain =()=>{
 	for(let i=0; i<krat; i++){
 		for(let j=0; j<krat; j++){
-			let x = simplex.noise2D(i/12, j/12)
-			let lasy = simplex.noise2D(i/12, j/12)
+
+			T[strcoords(i, j)] = generationLogics(simplex.noise2D(i/12, j/12)).T
+			O[strcoords(i, j)] = generationLogics(simplex.noise2D(i/12, j/12)).O
+
 			// x*2+1  ->  1 - 3
-			if(x > 0){
-				if(x*2+1 >= 1 && x*2+1 < 2){
-					T[strcoords(i, j)] = 1 //plains
-				}else if(x*2+1 >= 2 && x*2+1 <= 3){
-					T[strcoords(i, j)] = 2 //mountains
-				}else{
-					T[strcoords(i, j)] = 0
-				}
-				if(x*2+1 > 1 && x*2+1 < 1.25){
-					T[strcoords(i, j)] = 4 // beach
-				}
-
-
-				if(x*2+1 >= 1.25 && x*2+1 < 2  && Math.floor((x*2+1)*10000)%3==0){
-					O[strcoords(i, j)] = 1 // forest
-				}
-				if(x*2+1 > 1 && x*2+1 < 1.01){
-					O[strcoords(i, j)] = 2 //treasure...
-				}
-			}else{
-				//under water...
-			}
+			
 		}
 	}
+}
+
+const generateCell =(x, y)=>{
+	T[strcoords(x, y)] = generationLogics(simplex.noise2D(x/12, y/12)).T
+	O[strcoords(x, y)] = generationLogics(simplex.noise2D(x/12, y/12)).O
 }
 
 generateStartingTerrain()
@@ -163,6 +174,8 @@ const loop=()=>{
 				}else if(T[strcoords(i, j)] == 4){
 					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#d8eb02")
 					//beach
+				}else if(T[strcoords(i, j)] == undefined){
+					generateCell(i, j)
 				}
 
 
@@ -216,18 +229,17 @@ document.addEventListener('mousemove', e => {
 });
 
 document.addEventListener('wheel', e =>{
-	if(event.deltaY<0){
+	if(e.deltaY<0){
 		if(krat>20){
-			Math.floor(krat = krat+event.deltaY * 0.1)
+			krat = Math.floor(krat+e.deltaY * 0.1)
 		}
 	}else{
-		if(krat<100){
-			krat = Math.floor(krat+event.deltaY * 0.1)
+		if(krat<70){
+			krat = Math.floor(krat+e.deltaY * 0.1)
 		}
 	}
 	
 })
-
 
 
 loop()
