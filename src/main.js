@@ -41,6 +41,12 @@ const drawObject = (x, y, s, type)=>{
 		ctx.arc(x, y-s*3/4, s, 0, 2 * Math.PI);
 		ctx.fill();
 		ctx.stroke();
+	}else if(type == "mainBase"){
+		ctx.fillStyle = "gray"
+		ctx.strokeStyle = "black"
+		ctx.fillRect(x-s, y-s, s*2, s)
+		ctx.strokeRect(x-s, y-s, s*2, s)
+
 	}
 }
 
@@ -89,6 +95,21 @@ let T = {}
 //objects
 let O = {}
 
+let basePosition = {x:0, y:0}
+
+const getSimplex = (x, y)=>{
+	return(simplex.noise2D(x/12, y/12))
+}
+
+const generateCell =(x, y)=>{
+	T[strcoords(x, y)] = generationLogics(getSimplex(x, y)).T
+	if(x == basePosition.x && y == basePosition.y){
+		return 2
+	}else{
+		O[strcoords(x, y)] = generationLogics(getSimplex(x, y)).O
+	}
+}
+
 const generationLogics =(x)=>{
 	let R = {};
 	if(x > 0){
@@ -108,18 +129,18 @@ const generationLogics =(x)=>{
 			R.O = 1 // forest
 		}
 	}else{
-		R.T = 0
-		R.O = 0
+		R.T = 0 // biome
+		R.O = 0 // object
 	}
 	return R;
 }
 
 const generateStartingTerrain =()=>{
-	for(let i=0; i<krat; i++){
-		for(let j=0; j<krat; j++){
+	for(let i=basePosition.x-Math.floor(krat/2); i<basePosition.x+Math.floor(krat/2); i++){
+		for(let j=basePosition.y-Math.floor(krat/2); j<basePosition.y+Math.floor(krat/2); j++){
 
-			T[strcoords(i, j)] = generationLogics(simplex.noise2D(i/12, j/12)).T
-			O[strcoords(i, j)] = generationLogics(simplex.noise2D(i/12, j/12)).O
+			T[strcoords(i, j)] = generationLogics(getSimplex(i, j)).T
+			O[strcoords(i, j)] = generationLogics(getSimplex(i, j)).O
 
 			// x*2+1  ->  1 - 3
 
@@ -127,19 +148,61 @@ const generateStartingTerrain =()=>{
 	}
 }
 
-const generateCell =(x, y)=>{
-	T[strcoords(x, y)] = generationLogics(simplex.noise2D(x/12, y/12)).T
-	O[strcoords(x, y)] = generationLogics(simplex.noise2D(x/12, y/12)).O
+generateStartingTerrain()
+
+const nearObjects =(x, y, object, radius)=>{
+	let count = 0;
+	for(let i=x-radius; i<=x+radius; i++){
+		for(let j=y-radius; j<=y+radius; j++){
+			if(!(i==x-radius && j==y-radius) && !(i==x+radius && y+radius) && !(i==x && j==y)){
+				if(O[strcoords(i, j)] == undefined){
+					generateCell(i, j);
+				}
+				if(O[strcoords(i, j)] == object){
+					count ++;
+				}
+			}
+		}
+	}
+	return count;
+}
+const nearBiomes =(x, y, biome, radius)=>{
+	let count = 0;
+	for(let i=x-radius; i<=x+radius; i++){
+		for(let j=y-radius; j<=y+radius; j++){
+			if(!(i==x-radius && j==y-radius) && !(i==x+radius && y+radius) && !(i==x && j==y)){
+				if(T[strcoords(i, j)] == undefined){
+					generateCell(i, j);
+				}
+				if(T[strcoords(i, j)] == biome){
+					count ++;
+				}
+			}
+		}
+	}
+	return count;
 }
 
-generateStartingTerrain()
-console.log(T, O)
+
+
+while (true) {
+	let X = basePosition.x
+	let f = getSimplex(X, 0)
+	if(f*2+1 >= 1.25 && f*2+1 < 2  && Math.floor((f*2+1)*10000)%3!=0){
+		if(nearObjects(X, 0, 1, 1)>0 && nearBiomes(X, 0, 1, 1)>3){
+			O[strcoords(basePosition.x, 0)] = 2 //main base
+			break
+		}
+	}
+	basePosition.x++;
+}
+console.log(strcoords(basePosition.x, 0))
+let focus = {x:basePosition.x, y:basePosition.y-1}
+let cursor = {x:basePosition.x, y:basePosition.y}
 let tick = 0
 let lastTick = 0
 let time = Date.now()
 let lastTime = 0
-let focus = {x:Math.floor(krat/2), y:Math.floor(krat/2)}
-let cursor = {x:Math.floor(krat/2), y:Math.floor(krat/2)}
 let scrollingOffset = {x:0, y:0}
 let d = [1, 1]
 let _W = window.innerWidth
@@ -182,14 +245,19 @@ const loop=()=>{
 			}else if(T[strcoords(i, j)] == 4){
 				drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#d8eb02")
 				//beach
-			}else if(T[strcoords(i, j)] == undefined){
-				generateCell(i, j)
 			}
 
 
 			if(O[strcoords(i, j)] == 1){
 				drawObject(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a/3, "forest")
 				//forest
+			}if(O[strcoords(i, j)] == 2){
+				drawObject(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a/2, "mainBase")
+				//main base
+			}
+
+			if(T[strcoords(i, j)] == undefined || O[strcoords(i, j)] == undefined){
+				generateCell(i, j)
 			}
 		}
 	}
