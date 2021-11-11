@@ -41,12 +41,17 @@ const drawObject = (x, y, s, type)=>{
 		ctx.arc(x, y-s*3/4, s, 0, 2 * Math.PI);
 		ctx.fill();
 		ctx.stroke();
-	}else if(type == "treasure"){
-		ctx.fillStyle = "#4f2602"
-		ctx.strokeStyle = "black"
-		ctx.fillRect(x-s/2, y-s/2, s, s)
-		ctx.strokeRect(x-s/2, y-s/2, s, s)
 	}
+}
+
+const checkPointInHexagon =(x, y, s, cX, cY)=>{
+	if(pointWhichSide(x, y-s/2, x+s/2, y-s/4, cX, cY) != -1){return false;}
+	if(pointWhichSide(x+s/2, y-s/4, x+s/2, y, cX, cY) != -1){return false;}
+	if(pointWhichSide(x+s/2, y, x, y+s/4, cX, cY) != -1){return false;}
+	if(pointWhichSide(x, y+s/4, x-s/2, y, cX, cY) != 1){return false;}
+	if(pointWhichSide(x-s/2, y, x-s/2, y-s/4, cX, cY) != 1){return false;}
+	if(pointWhichSide(x-s/2, y-s/4, x, y-s/2, cX, cY) != 1){return false;}
+	return true;
 }
 
 const hexcoords =(x, y)=>{
@@ -56,6 +61,22 @@ const strcoords =(x, y)=>{
 	return (x.toString() + ":" + y.toString())
 }
 
+const pointWhichSide =(x1, y1, x2, y2, x3, y3)=>{
+	if(y1 - y2 != 0){
+		let x4 = (y3-y1)*(x1-x2)/(y1-y2)+x1
+		if(x4 <= x3){
+			return 1
+		}else{
+			return -1
+		}
+	}else{
+		if(y3 >= y1){
+			return 1
+		}else{
+			return -1
+		}
+	}
+}
 
 //terrain generation
 
@@ -115,95 +136,77 @@ generateStartingTerrain()
 console.log(T, O)
 let tick = 0
 let lastTick = 0
+let time = Date.now()
+let lastTime = 0
 let focus = {x:Math.floor(krat/2), y:Math.floor(krat/2)}
 let cursor = {x:Math.floor(krat/2), y:Math.floor(krat/2)}
+let scrollingOffset = {x:0, y:0}
 let d = [1, 1]
 let _W = window.innerWidth
 let _H = window.innerHeight
+let Clicked = false;
+let clickX, clickY;
 
 const loop=()=>{
-
+	time = Date.now()
 	_W = window.innerWidth
 	_H = window.innerHeight
 	let a = _H/krat*2
 
-	let offsetH = _H/2-a*hexcoords(focus.x, focus.y).y-a*3/4
-	let offsetW = _W/2-a*hexcoords(focus.x, focus.y).x-a
+	let offsetH = _H/2-a*hexcoords(focus.x+scrollingOffset.x, focus.y+scrollingOffset.y).y-a*3/4
+	let offsetW = _W/2-a*hexcoords(focus.x+scrollingOffset.x, focus.y+scrollingOffset.y).x-a
 
 	tick += 1
 	requestAnimationFrame(loop)
-	if(tick-lastTick>=5){
-		if(keys["ArrowLeft"]){
-			lastTick = tick
-			cursor.y -=1
-			cursor.x +=1
-		}if(keys["ArrowRight"]){
-			lastTick = tick
-			cursor.y +=1
-			cursor.x -=1
-		}if(keys["ArrowUp"]){
-			lastTick = tick
-			d[0]+=d[1]
-			d[1] = 1
-			cursor.x -= (d[0]+1)%2
-			cursor.y -= d[0]%2
+	c.width = _W
+	c.height = _H
 
-		}if(keys["ArrowDown"]){
-			lastTick = tick
-			d[0]+= 1+d[1]
-			d[1] = 0
-			cursor.x += (d[0]+1)%2
-			cursor.y += d[0]%2
-		}
+	//clear screen
+	ctx.fillStyle = "#0000FF"
+	ctx.fillRect(0, 0, _W, _H)
 
-	}
-	if(tick%2==0){
-		c.width = _W
-		c.height = _H
-
-		//clear screen
-		ctx.fillStyle = "#0000FF"
-		ctx.fillRect(0, 0, _W, _H)
-
-		//render Tarrain
-		for(let i=Math.floor(focus.x)-Math.floor(krat/2); i<=Math.floor(focus.x)+Math.floor(krat/2); i++){
-			for(let j=Math.floor(focus.y)-Math.floor(krat/2); j<=Math.floor(focus.y)+Math.floor(krat/2); j++){
-				if(T[strcoords(i, j)] == 1){
-					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#19bf1e")
-					//plains
-				}else if(T[strcoords(i, j)] == 2){
-					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#2e8200")
-					//mountains
-				}else if(T[strcoords(i, j)] == 4){
-					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#d8eb02")
-					//beach
-				}else if(T[strcoords(i, j)] == undefined){
-					generateCell(i, j)
-				}
+	//render Tarrain
+	for(let i=Math.floor(focus.x + scrollingOffset.x)-Math.floor(krat/2); i<=Math.floor(focus.x + scrollingOffset.x)+Math.floor(krat/2); i++){
+		for(let j=Math.floor(focus.y + scrollingOffset.y)-Math.floor(krat/2); j<=Math.floor(focus.y + scrollingOffset.y)+Math.floor(krat/2); j++){
+			if (Clicked && checkPointInHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, clickX, clickY)){
+				cursor.x = i
+				cursor.y = j
+				Clicked = false;
+			}
+			if(T[strcoords(i, j)] == 1){
+				drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#19bf1e")
+				//plains
+			}else if(T[strcoords(i, j)] == 2){
+				drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#2e8200")
+				//mountains
+			}else if(T[strcoords(i, j)] == 4){
+				drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#d8eb02")
+				//beach
+			}else if(T[strcoords(i, j)] == undefined){
+				generateCell(i, j)
+			}
 
 
-				if(O[strcoords(i, j)] == 1){
-					drawObject(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a/3, "forest")
-					//forest
-				}
+			if(O[strcoords(i, j)] == 1){
+				drawObject(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a/3, "forest")
+				//forest
 			}
 		}
-		drawHexagon(offsetW+a*hexcoords(cursor.x, cursor.y).x+a, offsetH+a*hexcoords(cursor.x, cursor.y).y+a, a*2, "black", "cursor")
 	}
-
-
-
+	drawHexagon(offsetW+a*hexcoords(cursor.x, cursor.y).x, offsetH+a*hexcoords(cursor.x, cursor.y).y, a*2, "black", "cursor")
 }
 //events
-let keys = {}
-document.addEventListener('keydown', keyDown);
-document.addEventListener('keyup', keyUp);
-function keyDown(e) {
-	keys[e.code] = true
-}
-function keyUp(e) {
-	keys[e.code] = null
-}
+
+
+// let keys = {}
+// document.addEventListener('keydown', keyDown);
+// document.addEventListener('keyup', keyUp);
+// function keyDown(e) {
+// 	keys[e.code] = true
+// }
+// function keyUp(e) {
+// 	keys[e.code] = null
+// }
 
 
 let isDragging = false;
@@ -213,12 +216,16 @@ let lastX = 0;
 let lastY = 0;
 window.addEventListener('mouseup', e => {
 	isDragging = false;
+
+	Clicked = false;
 });
 
 document.addEventListener('mousedown', e =>{
-	lastX = e.offsetX;
-	lastY = e.offsetY;
-	isDragging = true;
+	if(e.button == 0){
+		lastX = e.offsetX;
+		lastY = e.offsetY;
+		isDragging = true;
+	}
 })
 document.addEventListener('mousemove', e => {
 	if (isDragging == true) {
@@ -226,8 +233,8 @@ document.addEventListener('mousemove', e => {
 		deltaY = e.offsetY - lastY
 		lastX = e.offsetX;
 		lastY = e.offsetY;
-		focus.x += -hexcoords(deltaX, deltaY).x/_H*krat/4
-		focus.y += -hexcoords(deltaX, deltaY).y/_H*krat/4
+		scrollingOffset.x += -hexcoords(deltaX, deltaY).x/_H*krat/4
+		scrollingOffset.y += -hexcoords(deltaX, deltaY).y/_H*krat/4
 	}
 });
 
@@ -243,6 +250,14 @@ document.addEventListener('wheel', e =>{
 	}
 
 })
+
+document.addEventListener('contextmenu', e => {
+    e.preventDefault();
+    Clicked = true;
+	clickX = e.offsetX;
+	clickY = e.offsetY;
+    return false;
+}, false);
 
 
 loop()
