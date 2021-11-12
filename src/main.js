@@ -196,13 +196,9 @@ while (true) {
 	}
 	basePosition.x++;
 }
-console.log(strcoords(basePosition.x, 0))
+
 let focus = {x:basePosition.x, y:basePosition.y-1}
 let cursor = {x:basePosition.x, y:basePosition.y}
-let tick = 0
-let lastTick = 0
-let time = Date.now()
-let lastTime = 0
 let scrollingOffset = {x:0, y:0}
 let d = [1, 1]
 let _W = window.innerWidth
@@ -211,7 +207,6 @@ let Clicked = false;
 let clickX, clickY;
 
 const loop=()=>{
-	time = Date.now()
 	_W = window.innerWidth
 	_H = window.innerHeight
 	let a = _H/krat*2
@@ -219,7 +214,6 @@ const loop=()=>{
 	let offsetH = _H/2-a*hexcoords(focus.x+scrollingOffset.x, focus.y+scrollingOffset.y).y-a*3/4
 	let offsetW = _W/2-a*hexcoords(focus.x+scrollingOffset.x, focus.y+scrollingOffset.y).x-a
 
-	tick += 1
 	requestAnimationFrame(loop)
 	c.width = _W
 	c.height = _H
@@ -283,16 +277,22 @@ let deltaY = 0;
 let lastX = 0;
 let lastY = 0;
 window.addEventListener('mouseup', e => {
-	isDragging = false;
+	if(e.button == 2){
+		isDragging = false;
+	}
 
 	Clicked = false;
 });
 
 document.addEventListener('mousedown', e =>{
-	if(e.button == 0){
+	if(e.button == 2){
 		lastX = e.offsetX;
 		lastY = e.offsetY;
 		isDragging = true;
+	}else if(e.button == 0  && !isDragging){
+		Clicked = true;
+		clickX = e.offsetX;
+		clickY = e.offsetY;
 	}
 })
 document.addEventListener('mousemove', e => {
@@ -321,9 +321,6 @@ document.addEventListener('wheel', e =>{
 
 document.addEventListener('contextmenu', e => {
     e.preventDefault();
-    Clicked = true;
-	clickX = e.offsetX;
-	clickY = e.offsetY;
     return false;
 }, false);
 
