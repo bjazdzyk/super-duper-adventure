@@ -5,6 +5,7 @@ import '@fortawesome/fontawesome-free/js/solid'
 import SimplexNoise from 'simplex-noise'
 import TWEEN from '@tweenjs/tween.js'
 const c = document.getElementById('myCanvas')
+const homeButton = document.getElementById('home')
 const ctx = c.getContext('2d')
 
 const drawHexagon = (x, y, s, color, type = 'normal') => {
@@ -220,10 +221,12 @@ let _H = window.innerHeight
 let Clicked = false
 let clickX, clickY
 
-const loop = () => {
+let a = _H / krat * 2
+
+const loop = (time) => {
   _W = window.innerWidth
   _H = window.innerHeight
-  const a = _H / krat * 2
+  a = _H / krat * 2
 
   const offsetH = _H / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).y - a * 3 / 4
   const offsetW = _W / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).x - a
@@ -277,6 +280,8 @@ const loop = () => {
     }
   }
   drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
+
+  TWEEN.update(time)
 }
 
 let isDragging = false
@@ -284,7 +289,7 @@ let deltaX = 0
 let deltaY = 0
 let lastX = 0
 let lastY = 0
-window.addEventListener('mouseup', e => {
+c.addEventListener('mouseup', e => {
   if (e.button === 2) {
     isDragging = false
   }
@@ -315,10 +320,9 @@ document.addEventListener('mousemove', e => {
 })
 
 document.addEventListener('wheel', e => {
-  if (e.deltaY < 0) {
-    krat = Math.floor(krat + e.deltaY * 0.1)
-  } else {
-    krat = Math.floor(krat + e.deltaY * 0.1)
+  if (e.deltaY !== 0) {
+    krat = Math.floor(krat + e.deltaY / 10)
+    console.log(krat, e.deltaY)
   }
   if (krat < 20) {
     krat = 20
@@ -332,5 +336,19 @@ document.addEventListener('contextmenu', e => {
   e.preventDefault()
   return false
 }, false)
+
+homeButton.addEventListener('mousedown', e => {
+  if (!(scrollingOffset.x === 0 && scrollingOffset.y === 0)) {
+    const tween = new TWEEN.Tween(scrollingOffset)
+      .to({ x: 0, y: 0 }, 1000)
+      .easing(TWEEN.Easing.Exponential.InOut)
+      .onUpdate(function () {
+        const offsetH = _H / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).y - a * 3 / 4
+        const offsetW = _W / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).x - a
+      })
+      .start()
+    console.log(scrollingOffset)
+  }
+})
 
 loop()
