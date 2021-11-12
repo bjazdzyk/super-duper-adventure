@@ -236,7 +236,7 @@ let _H = window.innerHeight
 let Clicked = false
 let clickX, clickY
 
-let a = _H*_W / krat * 2
+let a = _H / krat * 2
 
 const loop = (time) => {
   _W = window.innerWidth
@@ -255,8 +255,8 @@ const loop = (time) => {
   ctx.fillRect(0, 0, _W, _H)
 
   // render Tarrain
-  for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(krat / 2); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(krat / 2); i++) {
-    for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(krat / 2); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(krat / 2); j++) {
+  for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(_W/_H*krat/5); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(_W/_H*krat/5)+1; i++) {
+    for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(_W/_H*krat/5); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(_W/_H*krat/5)+1; j++) {
       if (Clicked && checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, clickX, clickY)) {
         if(cursor.x === i && cursor.y === j){
           cursor = {x: "nope", y: "nope"}
@@ -266,31 +266,33 @@ const loop = (time) => {
         }
         Clicked = false
       }
-      if (E[strcoords(i, j)] === 1) {
-        if (T[strcoords(i, j)] === 1) {
-          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#19bf1e')
-          // plains
-        } else if (T[strcoords(i, j)] === 2) {
-          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#2e8200')
-          // mountains
-        } else if (T[strcoords(i, j)] === 4) {
-          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#d8eb02')
-          // beach
-        }
+      if(offsetW + a * hexcoords(i, j).x + a > 0 && offsetH + a * hexcoords(i, j).y + a > 0 && offsetW + a * hexcoords(i, j).x - a < _W && offsetH + a * hexcoords(i, j).y - a < _H){
+        if (E[strcoords(i, j)] === 1) {
+          if (T[strcoords(i, j)] === 1) {
+            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#19bf1e')
+            // plains
+          } else if (T[strcoords(i, j)] === 2) {
+            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#2e8200')
+            // mountains
+          } else if (T[strcoords(i, j)] === 4) {
+            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#d8eb02')
+            // beach
+          }
 
-        drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
+          drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
 
-      } else {
-        if (T[strcoords(i, j)] <= 0) {
-          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
         } else {
-          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#cccccc')
+          if (T[strcoords(i, j)] <= 0) {
+            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
+          } else {
+            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#cccccc')
+          }
         }
-      }
 
-      if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
-        generateCell(i, j)
+        if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
+          generateCell(i, j)
 
+        }
       }
     }
   }
