@@ -7,3 +7,6 @@
 - right click to drag terrain
 - mouse wheel to scroll terrain
 - left click to select hexagon
+
+### DEMO:
+*check it out* https://bjazdzyk.github.io/super-duper-adventure/
