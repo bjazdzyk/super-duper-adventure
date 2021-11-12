@@ -1,355 +1,336 @@
+import '@fortawesome/fontawesome-free/js/fontawesome'
+import '@fortawesome/fontawesome-free/js/solid'
+// import '@fortawesome/fontawesome-free/js/regular'
+// import '@fortawesome/fontawesome-free/js/brands'
+import SimplexNoise from 'simplex-noise'
+import TWEEN from '@tweenjs/tween.js'
+const c = document.getElementById('myCanvas')
+const ctx = c.getContext('2d')
 
-import SimplexNoise from 'simplex-noise';
-
-var c = document.getElementById("myCanvas");
-var ctx = c.getContext("2d");
-
-const drawHexagon =(x, y, s, color, type = "normal")=>{
-	if(type == "normal"){
-		ctx.fillStyle = color
-		ctx.strokeStyle = "#000000"
-		ctx.lineWidth = 1
-	}else if(type == "cursor"){
-		ctx.lineWidth = 5
-		ctx.strokestyle = "#000000"
-	}
-	ctx.beginPath()
-	ctx.moveTo(x, y-s/2)
-	ctx.lineTo(x+s/2, y-s/4)
-	ctx.lineTo(x+s/2, y)
-	ctx.lineTo(x, y+s/4)
-	ctx.lineTo(x-s/2, y)
-	ctx.lineTo(x-s/2, y-s/4)
-	ctx.lineTo(x, y-s/2)
-	ctx.closePath()
-	if(type == "normal"){
-		ctx.stroke()
-		ctx.fill()
-	}else if(type == "cursor"){
-		ctx.stroke()
-	}
+const drawHexagon = (x, y, s, color, type = 'normal') => {
+  if (type === 'normal') {
+    ctx.fillStyle = color
+    ctx.strokeStyle = '#000000'
+    ctx.lineWidth = 1
+  } else if (type === 'cursor') {
+    ctx.lineWidth = 5
+    ctx.strokestyle = '#000000'
+  }
+  ctx.beginPath()
+  ctx.moveTo(x, y - s / 2)
+  ctx.lineTo(x + s / 2, y - s / 4)
+  ctx.lineTo(x + s / 2, y)
+  ctx.lineTo(x, y + s / 4)
+  ctx.lineTo(x - s / 2, y)
+  ctx.lineTo(x - s / 2, y - s / 4)
+  ctx.lineTo(x, y - s / 2)
+  ctx.closePath()
+  if (type === 'normal') {
+    ctx.stroke()
+    ctx.fill()
+  } else if (type === 'cursor') {
+    ctx.stroke()
+  }
 }
-const drawObject = (x, y, s, type)=>{
-	if(type == "forest"){
-		ctx.fillStyle = "#4f2602"
-		ctx.strokeStyle = "black"
-		ctx.fillRect(x-s/2, y-s/2, s, s)
-		ctx.strokeRect(x-s/2, y-s/2, s, s)
+const drawObject = (x, y, s, type) => {
+  if (type === 'forest') {
+    ctx.fillStyle = '#4f2602'
+    ctx.strokeStyle = 'black'
+    ctx.fillRect(x - s / 2, y - s / 2, s, s)
+    ctx.strokeRect(x - s / 2, y - s / 2, s, s)
 
-		ctx.fillStyle = "#248016"
-		ctx.beginPath();
-		ctx.arc(x, y-s*3/4, s, 0, 2 * Math.PI);
-		ctx.fill();
-		ctx.stroke();
-	}else if(type == "mainBase"){
-		ctx.fillStyle = "gray"
-		ctx.strokeStyle = "black"
-		ctx.fillRect(x-s, y-s, s*2, s)
-		ctx.strokeRect(x-s, y-s, s*2, s)
-
-	}
-}
-
-const checkPointInHexagon =(x, y, s, cX, cY)=>{
-	if(pointWhichSide(x, y-s/2, x+s/2, y-s/4, cX, cY) != -1){return false;}
-	if(pointWhichSide(x+s/2, y-s/4, x+s/2, y, cX, cY) != -1){return false;}
-	if(pointWhichSide(x+s/2, y, x, y+s/4, cX, cY) != -1){return false;}
-	if(pointWhichSide(x, y+s/4, x-s/2, y, cX, cY) != 1){return false;}
-	if(pointWhichSide(x-s/2, y, x-s/2, y-s/4, cX, cY) != 1){return false;}
-	if(pointWhichSide(x-s/2, y-s/4, x, y-s/2, cX, cY) != 1){return false;}
-	return true;
+    ctx.fillStyle = '#248016'
+    ctx.beginPath()
+    ctx.arc(x, y - s * 3 / 4, s, 0, 2 * Math.PI)
+    ctx.fill()
+    ctx.stroke()
+  } else if (type === 'mainBase') {
+    ctx.fillStyle = 'gray'
+    ctx.strokeStyle = 'black'
+    ctx.fillRect(x - s, y - s, s * 2, s)
+    ctx.strokeRect(x - s, y - s, s * 2, s)
+  }
 }
 
-const hexcoords =(x, y)=>{
-	return {x: (y-x), y:(y+x)}
-}
-const strcoords =(x, y)=>{
-	return (x.toString() + ":" + y.toString())
-}
-
-const pointWhichSide =(x1, y1, x2, y2, x3, y3)=>{
-	if(y1 - y2 != 0){
-		let x4 = (y3-y1)*(x1-x2)/(y1-y2)+x1
-		if(x4 <= x3){
-			return 1
-		}else{
-			return -1
-		}
-	}else{
-		if(y3 >= y1){
-			return 1
-		}else{
-			return -1
-		}
-	}
+const checkPointInHexagon = (x, y, s, cX, cY) => {
+  if (pointWhichSide(x, y - s / 2, x + s / 2, y - s / 4, cX, cY) !== -1) { return false }
+  if (pointWhichSide(x + s / 2, y - s / 4, x + s / 2, y, cX, cY) !== -1) { return false }
+  if (pointWhichSide(x + s / 2, y, x, y + s / 4, cX, cY) !== -1) { return false }
+  if (pointWhichSide(x, y + s / 4, x - s / 2, y, cX, cY) !== 1) { return false }
+  if (pointWhichSide(x - s / 2, y, x - s / 2, y - s / 4, cX, cY) !== 1) { return false }
+  if (pointWhichSide(x - s / 2, y - s / 4, x, y - s / 2, cX, cY) !== 1) { return false }
+  return true
 }
 
-//terrain generation
+const hexcoords = (x, y) => {
+  return { x: (y - x), y: (y + x) }
+}
+const strcoords = (x, y) => {
+  return (x.toString() + ':' + y.toString())
+}
 
-var simplex = new SimplexNoise()
+const pointWhichSide = (x1, y1, x2, y2, x3, y3) => {
+  if (y1 - y2 !== 0) {
+    const x4 = (y3 - y1) * (x1 - x2) / (y1 - y2) + x1
+    if (x4 <= x3) {
+      return 1
+    } else {
+      return -1
+    }
+  } else {
+    if (y3 >= y1) {
+      return 1
+    } else {
+      return -1
+    }
+  }
+}
+
+// terrain generation
+
+const simplex = new SimplexNoise()
 let krat = 20
 
-//biomes
-let T = {}
+// biomes
+const T = {}
 
-//objects
-let O = {}
+// objects
+const O = {}
 
-//explored terrain
-let E = {}
+// explored terrain
+const E = {}
 
-let basePosition = {x:0, y:0}
+const basePosition = { x: 0, y: 0 }
 
-const getSimplex = (x, y)=>{
-	return(simplex.noise2D(x/12, y/12))
+const getSimplex = (x, y) => {
+  return (simplex.noise2D(x / 12, y / 12))
 }
 
-const generateCell =(x, y)=>{
-	T[strcoords(x, y)] = generationLogics(getSimplex(x, y)).T
-	if(x == basePosition.x && y == basePosition.y){
-		return 2
-	}else{
-		O[strcoords(x, y)] = generationLogics(getSimplex(x, y)).O
-	}
+const generateCell = (x, y) => {
+  T[strcoords(x, y)] = generationLogics(getSimplex(x, y)).T
+  if (x === basePosition.x && y === basePosition.y) {
+    return 2
+  } else {
+    O[strcoords(x, y)] = generationLogics(getSimplex(x, y)).O
+  }
 }
 
-const generationLogics =(x)=>{
-	let R = {};
-	if(x > 0){
-		if(x*2+1 >= 1 && x*2+1 < 2){
-			R.T = 1 //plains
-		}else if(x*2+1 >= 2 && x*2+1 <= 3){
-			R.T = 2 //mountains
-		}else{
-			R.T = 0
-		}
-		if(x*2+1 > 1 && x*2+1 < 1.25){
-			R.T = 4 // beach
-		}
+const generationLogics = (x) => {
+  const R = {}
+  if (x > 0) {
+    if (x * 2 + 1 >= 1 && x * 2 + 1 < 2) {
+      R.T = 1 // plains
+    } else if (x * 2 + 1 >= 2 && x * 2 + 1 <= 3) {
+      R.T = 2 // mountains
+    } else {
+      R.T = 0
+    }
+    if (x * 2 + 1 > 1 && x * 2 + 1 < 1.25) {
+      R.T = 4 // beach
+    }
 
-
-		if(x*2+1 >= 1.25 && x*2+1 < 2  && Math.floor((x*2+1)*10000)%3==0){
-			R.O = 1 // forest
-		}
-	}else{
-		R.T = 0 // biome
-		R.O = 0 // object
-	}
-	return R;
+    if (x * 2 + 1 >= 1.25 && x * 2 + 1 < 2 && Math.floor((x * 2 + 1) * 10000) % 3 === 0) {
+      R.O = 1 // forest
+    }
+  } else {
+    R.T = 0 // biome
+    R.O = 0 // object
+  }
+  return R
 }
 
-const generateStartingTerrain =()=>{
-	for(let i=basePosition.x-Math.floor(krat/2); i<basePosition.x+Math.floor(krat/2); i++){
-		for(let j=basePosition.y-Math.floor(krat/2); j<basePosition.y+Math.floor(krat/2); j++){
+const generateStartingTerrain = () => {
+  for (let i = basePosition.x - Math.floor(krat / 2); i < basePosition.x + Math.floor(krat / 2); i++) {
+    for (let j = basePosition.y - Math.floor(krat / 2); j < basePosition.y + Math.floor(krat / 2); j++) {
+      T[strcoords(i, j)] = generationLogics(getSimplex(i, j)).T
+      O[strcoords(i, j)] = generationLogics(getSimplex(i, j)).O
 
-			T[strcoords(i, j)] = generationLogics(getSimplex(i, j)).T
-			O[strcoords(i, j)] = generationLogics(getSimplex(i, j)).O
-
-			// x*2+1  ->  1 - 3
-
-		}
-	}
+      // x*2+1  ->  1 - 3
+    }
+  }
 }
 
 generateStartingTerrain()
 
-const nearObjects =(x, y, object, radius)=>{
-	let count = 0;
-	for(let i=x-radius; i<=x+radius; i++){
-		for(let j=y-radius; j<=y+radius; j++){
-			if(!(i==x-radius && j==y-radius) && !(i==x+radius && y+radius) && !(i==x && j==y)){
-				if(O[strcoords(i, j)] == undefined){
-					generateCell(i, j);
-				}
-				if(O[strcoords(i, j)] == object){
-					count ++;
-				}
-			}
-		}
-	}
-	return count;
+const nearObjects = (x, y, object, radius) => {
+  let count = 0
+  for (let i = x - radius; i <= x + radius; i++) {
+    for (let j = y - radius; j <= y + radius; j++) {
+      if (!(i === x - radius && j === y - radius) && !(i === x + radius && y + radius) && !(i === x && j === y)) {
+        if (O[strcoords(i, j)] === undefined) {
+          generateCell(i, j)
+        }
+        if (O[strcoords(i, j)] === object) {
+          count++
+        }
+      }
+    }
+  }
+  return count
 }
-const nearBiomes =(x, y, biome, radius)=>{
-	let count = 0;
-	for(let i=x-radius; i<=x+radius; i++){
-		for(let j=y-radius; j<=y+radius; j++){
-			if(!(i==x-radius && j==y-radius) && !(i==x+radius && y+radius) && !(i==x && j==y)){
-				if(T[strcoords(i, j)] == undefined){
-					generateCell(i, j);
-				}
-				if(T[strcoords(i, j)] == biome){
-					count ++;
-				}
-			}
-		}
-	}
-	return count;
-}
-
-const explore =(x, y, radius, ex = {T:"every", O:"every"})=>{
-	for(let i=x-radius; i<=x+radius; i++){
-		for(let j=y-radius; j<=y+radius; j++){
-			if(!(i==x-radius && j==y-radius) && !(i==x+radius && j==y+radius) && !(i==x+radius && j==y+radius)){
-				if(ex.T == "every" && ex.O == "every"){
-					E[strcoords(i, j)] = 1;
-				}
-			}
-		}
-	}
+const nearBiomes = (x, y, biome, radius) => {
+  let count = 0
+  for (let i = x - radius; i <= x + radius; i++) {
+    for (let j = y - radius; j <= y + radius; j++) {
+      if (!(i === x - radius && j === y - radius) && !(i === x + radius && y + radius) && !(i === x && j === y)) {
+        if (T[strcoords(i, j)] === undefined) {
+          generateCell(i, j)
+        }
+        if (T[strcoords(i, j)] === biome) {
+          count++
+        }
+      }
+    }
+  }
+  return count
 }
 
-
+const explore = (x, y, radius, ex = { T: 'every', O: 'every' }) => {
+  for (let i = x - radius; i <= x + radius; i++) {
+    for (let j = y - radius; j <= y + radius; j++) {
+      if (!(i === x - radius && j === y - radius) && !(i === x + radius && j === y + radius) && !(i === x + radius && j === y + radius)) {
+        if (ex.T === 'every' && ex.O === 'every') {
+          E[strcoords(i, j)] = 1
+        }
+      }
+    }
+  }
+}
 
 while (true) {
-	let X = basePosition.x
-	let f = getSimplex(X, 0)
-	if(f*2+1 >= 1.25 && f*2+1 < 2  && Math.floor((f*2+1)*10000)%3!=0){
-		if(nearObjects(X, 0, 1, 1)>0 && nearBiomes(X, 0, 1, 1)>3){
-			O[strcoords(basePosition.x, 0)] = 2 //main base
-			break
-		}
-	}
-	basePosition.x++;
+  const X = basePosition.x
+  const f = getSimplex(X, 0)
+  if (f * 2 + 1 >= 1.25 && f * 2 + 1 < 2 && Math.floor((f * 2 + 1) * 10000) % 3 !== 0) {
+    if (nearObjects(X, 0, 1, 1) > 0 && nearBiomes(X, 0, 1, 1) > 3) {
+      O[strcoords(basePosition.x, 0)] = 2 // main base
+      break
+    }
+  }
+  basePosition.x++
 }
 
-explore(basePosition.x, basePosition.y, 4);
+explore(basePosition.x, basePosition.y, 4)
 
-let focus = {x:basePosition.x, y:basePosition.y-1}
-let cursor = {x:basePosition.x, y:basePosition.y}
-let scrollingOffset = {x:0, y:0}
-let d = [1, 1]
+const focus = { x: basePosition.x, y: basePosition.y - 1 }
+const cursor = { x: basePosition.x, y: basePosition.y }
+const scrollingOffset = { x: 0, y: 0 }
+
 let _W = window.innerWidth
 let _H = window.innerHeight
-let Clicked = false;
-let clickX, clickY;
+let Clicked = false
+let clickX, clickY
 
-const loop=()=>{
-	_W = window.innerWidth
-	_H = window.innerHeight
-	let a = _H/krat*2
+const loop = () => {
+  _W = window.innerWidth
+  _H = window.innerHeight
+  const a = _H / krat * 2
 
-	let offsetH = _H/2-a*hexcoords(focus.x+scrollingOffset.x, focus.y+scrollingOffset.y).y-a*3/4
-	let offsetW = _W/2-a*hexcoords(focus.x+scrollingOffset.x, focus.y+scrollingOffset.y).x-a
+  const offsetH = _H / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).y - a * 3 / 4
+  const offsetW = _W / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).x - a
 
-	requestAnimationFrame(loop)
-	c.width = _W
-	c.height = _H
+  window.requestAnimationFrame(loop)
+  c.width = _W
+  c.height = _H
 
-	//clear screen
-	ctx.fillStyle = "#0000FF"
-	ctx.fillRect(0, 0, _W, _H)
+  // clear screen
+  ctx.fillStyle = '#0000FF'
+  ctx.fillRect(0, 0, _W, _H)
 
-	//render Tarrain
-	for(let i=Math.floor(focus.x + scrollingOffset.x)-Math.floor(krat/2); i<=Math.floor(focus.x + scrollingOffset.x)+Math.floor(krat/2); i++){
-		for(let j=Math.floor(focus.y + scrollingOffset.y)-Math.floor(krat/2); j<=Math.floor(focus.y + scrollingOffset.y)+Math.floor(krat/2); j++){
-			if (Clicked && checkPointInHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, clickX, clickY)){
-				cursor.x = i
-				cursor.y = j
-				Clicked = false;
-			}
-			if(E[strcoords(i, j)] == 1){
-				if(T[strcoords(i, j)] == 1){
-					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#19bf1e")
-					//plains
-				}else if(T[strcoords(i, j)] == 2){
-					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#2e8200")
-					//mountains
-				}else if(T[strcoords(i, j)] == 4){
-					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#d8eb02")
-					//beach
-				}
+  // render Tarrain
+  for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(krat / 2); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(krat / 2); i++) {
+    for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(krat / 2); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(krat / 2); j++) {
+      if (Clicked && checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, clickX, clickY)) {
+        cursor.x = i
+        cursor.y = j
+        Clicked = false
+      }
+      if (E[strcoords(i, j)] === 1) {
+        if (T[strcoords(i, j)] === 1) {
+          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#19bf1e')
+          // plains
+        } else if (T[strcoords(i, j)] === 2) {
+          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#2e8200')
+          // mountains
+        } else if (T[strcoords(i, j)] === 4) {
+          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#d8eb02')
+          // beach
+        }
 
+        if (O[strcoords(i, j)] === 1) {
+          drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a / 3, 'forest')
+          // forest
+        } if (O[strcoords(i, j)] === 2) {
+          drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a / 2, 'mainBase')
+          // main base
+        }
+      } else {
+        if (T[strcoords(i, j)] <= 0) {
+          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
+        } else {
+          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#cccccc')
+        }
+      }
 
-				if(O[strcoords(i, j)] == 1){
-					drawObject(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a/3, "forest")
-					//forest
-				}if(O[strcoords(i, j)] == 2){
-					drawObject(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a/2, "mainBase")
-					//main base
-				}
-			}else{
-				if(T[strcoords(i, j)] <= 0){
-					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#e0e0e0")
-				}else{
-					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#cccccc")
-				}
-			}
-
-			if(T[strcoords(i, j)] == undefined || O[strcoords(i, j)] == undefined){
-				generateCell(i, j)
-			}
-		}
-	}
-	drawHexagon(offsetW+a*hexcoords(cursor.x, cursor.y).x, offsetH+a*hexcoords(cursor.x, cursor.y).y, a*2, "black", "cursor")
+      if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
+        generateCell(i, j)
+      }
+    }
+  }
+  drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
 }
-//events
 
-
-// let keys = {}
-// document.addEventListener('keydown', keyDown);
-// document.addEventListener('keyup', keyUp);
-// function keyDown(e) {
-// 	keys[e.code] = true
-// }
-// function keyUp(e) {
-// 	keys[e.code] = null
-// }
-
-
-let isDragging = false;
-let deltaX = 0;
-let deltaY = 0;
-let lastX = 0;
-let lastY = 0;
+let isDragging = false
+let deltaX = 0
+let deltaY = 0
+let lastX = 0
+let lastY = 0
 window.addEventListener('mouseup', e => {
-	if(e.button == 2){
-		isDragging = false;
-	}
+  if (e.button === 2) {
+    isDragging = false
+  }
 
-	Clicked = false;
-});
+  Clicked = false
+})
 
-document.addEventListener('mousedown', e =>{
-	if(e.button == 2){
-		lastX = e.offsetX;
-		lastY = e.offsetY;
-		isDragging = true;
-	}else if(e.button == 0  && !isDragging){
-		Clicked = true;
-		clickX = e.offsetX;
-		clickY = e.offsetY;
-	}
+c.addEventListener('mousedown', e => {
+  if (e.button === 2) {
+    lastX = e.offsetX
+    lastY = e.offsetY
+    isDragging = true
+  } else if (e.button === 0 && !isDragging) {
+    Clicked = true
+    clickX = e.offsetX
+    clickY = e.offsetY
+  }
 })
 document.addEventListener('mousemove', e => {
-	if (isDragging == true) {
-		deltaX = e.offsetX - lastX
-		deltaY = e.offsetY - lastY
-		lastX = e.offsetX;
-		lastY = e.offsetY;
-		scrollingOffset.x += -hexcoords(deltaX, deltaY).x/_H*krat/4
-		scrollingOffset.y += -hexcoords(deltaX, deltaY).y/_H*krat/4
-	}
-});
+  if (isDragging === true) {
+    deltaX = e.offsetX - lastX
+    deltaY = e.offsetY - lastY
+    lastX = e.offsetX
+    lastY = e.offsetY
+    scrollingOffset.x += -hexcoords(deltaX, deltaY).x / _H * krat / 4
+    scrollingOffset.y += -hexcoords(deltaX, deltaY).y / _H * krat / 4
+  }
+})
 
-document.addEventListener('wheel', e =>{
-	if(e.deltaY<0){
-		krat = Math.floor(krat+e.deltaY * 0.1)
-	}else{
-		krat = Math.floor(krat+e.deltaY * 0.1)
-	}
-	if(krat < 20){
-		krat = 20
-	}
-	if(krat > 50){
-		krat = 50
-	}
-
+document.addEventListener('wheel', e => {
+  if (e.deltaY < 0) {
+    krat = Math.floor(krat + e.deltaY * 0.1)
+  } else {
+    krat = Math.floor(krat + e.deltaY * 0.1)
+  }
+  if (krat < 20) {
+    krat = 20
+  }
+  if (krat > 50) {
+    krat = 50
+  }
 })
 
 document.addEventListener('contextmenu', e => {
-    e.preventDefault();
-    return false;
-}, false);
-
+  e.preventDefault()
+  return false
+}, false)
 
 loop()
