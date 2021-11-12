@@ -212,7 +212,7 @@ while (true) {
 	basePosition.x++;
 }
 
-explore(basePosition.x, basePosition.y, 3);
+explore(basePosition.x, basePosition.y, 4);
 
 let focus = {x:basePosition.x, y:basePosition.y-1}
 let cursor = {x:basePosition.x, y:basePosition.y}
@@ -333,13 +333,15 @@ document.addEventListener('mousemove', e => {
 
 document.addEventListener('wheel', e =>{
 	if(e.deltaY<0){
-		if(krat>20){
-			krat = Math.floor(krat+e.deltaY * 0.1)
-		}
+		krat = Math.floor(krat+e.deltaY * 0.1)
 	}else{
-		if(krat<50){
-			krat = Math.floor(krat+e.deltaY * 0.1)
-		}
+		krat = Math.floor(krat+e.deltaY * 0.1)
+	}
+	if(krat < 20){
+		krat = 20
+	}
+	if(krat > 50){
+		krat = 50
 	}
 
 })
