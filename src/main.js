@@ -87,13 +87,16 @@ const pointWhichSide =(x1, y1, x2, y2, x3, y3)=>{
 //terrain generation
 
 var simplex = new SimplexNoise()
-let krat = 40
+let krat = 20
 
 //biomes
 let T = {}
 
 //objects
 let O = {}
+
+//explored terrain
+let E = {}
 
 let basePosition = {x:0, y:0}
 
@@ -183,6 +186,18 @@ const nearBiomes =(x, y, biome, radius)=>{
 	return count;
 }
 
+const explore =(x, y, radius, ex = {T:"every", O:"every"})=>{
+	for(let i=x-radius; i<=x+radius; i++){
+		for(let j=y-radius; j<=y+radius; j++){
+			if(!(i==x-radius && j==y-radius) && !(i==x+radius && j==y+radius) && !(i==x+radius && j==y+radius)){
+				if(ex.T == "every" && ex.O == "every"){
+					E[strcoords(i, j)] = 1;
+				}
+			}
+		}
+	}
+}
+
 
 
 while (true) {
@@ -196,6 +211,8 @@ while (true) {
 	}
 	basePosition.x++;
 }
+
+explore(basePosition.x, basePosition.y, 3);
 
 let focus = {x:basePosition.x, y:basePosition.y-1}
 let cursor = {x:basePosition.x, y:basePosition.y}
@@ -230,24 +247,32 @@ const loop=()=>{
 				cursor.y = j
 				Clicked = false;
 			}
-			if(T[strcoords(i, j)] == 1){
-				drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#19bf1e")
-				//plains
-			}else if(T[strcoords(i, j)] == 2){
-				drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#2e8200")
-				//mountains
-			}else if(T[strcoords(i, j)] == 4){
-				drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#d8eb02")
-				//beach
-			}
+			if(E[strcoords(i, j)] == 1){
+				if(T[strcoords(i, j)] == 1){
+					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#19bf1e")
+					//plains
+				}else if(T[strcoords(i, j)] == 2){
+					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#2e8200")
+					//mountains
+				}else if(T[strcoords(i, j)] == 4){
+					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#d8eb02")
+					//beach
+				}
 
 
-			if(O[strcoords(i, j)] == 1){
-				drawObject(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a/3, "forest")
-				//forest
-			}if(O[strcoords(i, j)] == 2){
-				drawObject(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a/2, "mainBase")
-				//main base
+				if(O[strcoords(i, j)] == 1){
+					drawObject(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a/3, "forest")
+					//forest
+				}if(O[strcoords(i, j)] == 2){
+					drawObject(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a/2, "mainBase")
+					//main base
+				}
+			}else{
+				if(T[strcoords(i, j)] <= 0){
+					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#e0e0e0")
+				}else{
+					drawHexagon(offsetW+a*hexcoords(i, j).x, offsetH+a*hexcoords(i, j).y, a*2, "#cccccc")
+				}
 			}
 
 			if(T[strcoords(i, j)] == undefined || O[strcoords(i, j)] == undefined){
@@ -312,7 +337,7 @@ document.addEventListener('wheel', e =>{
 			krat = Math.floor(krat+e.deltaY * 0.1)
 		}
 	}else{
-		if(krat<70){
+		if(krat<50){
 			krat = Math.floor(krat+e.deltaY * 0.1)
 		}
 	}
