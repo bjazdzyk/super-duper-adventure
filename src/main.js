@@ -8,6 +8,19 @@ const c = document.getElementById('myCanvas')
 const homeButton = document.getElementById('home')
 const ctx = c.getContext('2d')
 
+CanvasRenderingContext2D.prototype.roundRect =(x, y, width, height, radius)=> {
+  if (width < 2 * radius) radius = width / 2;
+  if (height < 2 * radius) radius = height / 2;
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + width, y, x + width, y + height, radius);
+  ctx.arcTo(x + width, y + height, x, y + height, radius);
+  ctx.arcTo(x, y + height, x, y, radius);
+  ctx.arcTo(x, y, x + width, y, radius);
+  ctx.closePath();
+  return ctx;
+}
+
 const drawHexagon = (x, y, s, color, type = 'normal') => {
   if (type === 'normal') {
     ctx.fillStyle = color
@@ -34,7 +47,8 @@ const drawHexagon = (x, y, s, color, type = 'normal') => {
   }
 }
 const drawObject = (x, y, s, type) => {
-  if (type === 'forest') {
+  if (type === 1) { // forest
+    s/=3
     ctx.fillStyle = '#4f2602'
     ctx.strokeStyle = 'black'
     ctx.fillRect(x - s / 2, y - s / 2, s, s)
@@ -45,7 +59,8 @@ const drawObject = (x, y, s, type) => {
     ctx.arc(x, y - s * 3 / 4, s, 0, 2 * Math.PI)
     ctx.fill()
     ctx.stroke()
-  } else if (type === 'mainBase') {
+  } else if (type === 2) { // main base
+    s/=2
     ctx.fillStyle = 'gray'
     ctx.strokeStyle = 'black'
     ctx.fillRect(x - s, y - s, s * 2, s)
@@ -202,7 +217,7 @@ while (true) {
   const X = basePosition.x
   const f = getSimplex(X, 0)
   if (f * 2 + 1 >= 1.25 && f * 2 + 1 < 2 && Math.floor((f * 2 + 1) * 10000) % 3 !== 0) {
-    if (nearObjects(X, 0, 1, 1) > 0 && nearBiomes(X, 0, 1, 1) > 3) {
+    if (nearObjects(X, 0, 1, 1) > 0 && nearBiomes(X, 0, 1, 1) > 2 && nearBiomes(X, 0, 0, 2) > 0 && nearBiomes(X, 0, 2, 2) > 0) {
       O[strcoords(basePosition.x, 0)] = 2 // main base
       break
     }
@@ -210,18 +225,18 @@ while (true) {
   basePosition.x++
 }
 
-explore(basePosition.x, basePosition.y, 4)
+explore(basePosition.x, basePosition.y, 2)
 
-const focus = { x: basePosition.x, y: basePosition.y - 1 }
-const cursor = { x: basePosition.x, y: basePosition.y }
-const scrollingOffset = { x: 0, y: 0 }
+let focus = { x: basePosition.x, y: basePosition.y - 1 }
+let cursor = { x: "nope", y: "nope" }
+let scrollingOffset = { x: 0, y: 0 }
 
 let _W = window.innerWidth
 let _H = window.innerHeight
 let Clicked = false
 let clickX, clickY
 
-let a = _H / krat * 2
+let a = _H*_W / krat * 2
 
 const loop = (time) => {
   _W = window.innerWidth
@@ -243,8 +258,12 @@ const loop = (time) => {
   for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(krat / 2); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(krat / 2); i++) {
     for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(krat / 2); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(krat / 2); j++) {
       if (Clicked && checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, clickX, clickY)) {
-        cursor.x = i
-        cursor.y = j
+        if(cursor.x === i && cursor.y === j){
+          cursor = {x: "nope", y: "nope"}
+        }else{
+          cursor.x = i
+          cursor.y = j
+        }
         Clicked = false
       }
       if (E[strcoords(i, j)] === 1) {
@@ -259,13 +278,8 @@ const loop = (time) => {
           // beach
         }
 
-        if (O[strcoords(i, j)] === 1) {
-          drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a / 3, 'forest')
-          // forest
-        } if (O[strcoords(i, j)] === 2) {
-          drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a / 2, 'mainBase')
-          // main base
-        }
+        drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
+
       } else {
         if (T[strcoords(i, j)] <= 0) {
           drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
@@ -276,11 +290,28 @@ const loop = (time) => {
 
       if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
         generateCell(i, j)
+
       }
     }
   }
-  drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
+  if(offsetW + a * hexcoords(cursor.x, cursor.y).x + a < 0 || offsetW + a * hexcoords(cursor.x, cursor.y).x - a > _W){
+    cursor = {x: "nope", y: "nope"}
+  }
+  if(cursor.x !== "nope" && cursor.y !== "nope"){
+    //draw cursor
+    drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
+    
+    //show cell info
+    ctx.roundRect(_W*0.99-200, _H*0.01, 200, _H*0.3, 10);
+    ctx.fillStyle = "#8a7732"
+    ctx.fill()
+    ctx.strokeStyle = "black"
+    ctx.lineWidth = 2
+    ctx.stroke()
 
+    ctx.lineWidth = 1
+    drawObject(_W*0.99-100, _H*0.01 + _H*0.04, _H*0.04, O[strcoords(cursor.x, cursor.y)])
+  }
   TWEEN.update(time)
 }
 
@@ -289,11 +320,10 @@ let deltaX = 0
 let deltaY = 0
 let lastX = 0
 let lastY = 0
-c.addEventListener('mouseup', e => {
+document.addEventListener('mouseup', e => {
   if (e.button === 2) {
     isDragging = false
   }
-
   Clicked = false
 })
 
@@ -322,13 +352,12 @@ document.addEventListener('mousemove', e => {
 document.addEventListener('wheel', e => {
   if (e.deltaY !== 0) {
     krat = Math.floor(krat + e.deltaY / 10)
-    console.log(krat, e.deltaY)
   }
   if (krat < 20) {
     krat = 20
   }
-  if (krat > 50) {
-    krat = 50
+  if (krat > 35) {
+    krat = 35
   }
 })
 
@@ -347,8 +376,15 @@ homeButton.addEventListener('mousedown', e => {
         const offsetW = _W / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).x - a
       })
       .start()
-    console.log(scrollingOffset)
+    setTimeout(function(){
+      cursor.x = basePosition.x
+      cursor.y = basePosition.y
+    }, 1000);
+  }else{
+    cursor.x = basePosition.x
+    cursor.y = basePosition.y
   }
+  
 })
 
 loop()
