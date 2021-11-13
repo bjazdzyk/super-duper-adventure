@@ -306,17 +306,26 @@ const loop = (time) => {
     //draw cursor
     drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
     
-    //show cell info
-    ctx.roundRect(_W*0.99-200, _H*0.01, 200, _H*0.3, 10);
-    ctx.fillStyle = "#8a7732"
+    //cell info
+    ctx.roundRect(_W*0.99-200, _H*0.02 + 30, 200, _H*0.3, 10);
+    ctx.fillStyle = "#a6935a"
     ctx.fill()
     ctx.strokeStyle = "black"
     ctx.lineWidth = 2
     ctx.stroke()
 
     ctx.lineWidth = 1
-    drawObject(_W*0.99-100, _H*0.01 + _H*0.04, _H*0.04, O[strcoords(cursor.x, cursor.y)])
+    drawObject(_W*0.99-100, _H*0.06 + 30, _H*0.04, O[strcoords(cursor.x, cursor.y)])
   }
+  //wood storage
+  ctx.roundRect(_W*0.99-200, _H*0.01, wood/woodLimit*200, 30, 10)
+  ctx.fillStyle = "#9c772d"
+  ctx.fill()
+  ctx.roundRect(_W*0.99-200, _H*0.01, 200, 30, 10) 
+  ctx.lineWidth = 2
+  ctx.stroke()
+  drawObject(_W*0.99-185, _H*0.01 + 20, 25, 1)
+
   TWEEN.update(time)
 }
 
