@@ -6,20 +6,36 @@ body{
 	margin: 0;
 	overflow: hidden;
 }
-button {
+button{
 	position: fixed;
+	z-index: 1;
+}
+#home{
 	left: 1%;
 	top: 1%;
-	z-index: 1;
 	width: 30;
 	height: 30;
+
 }
-
+#shop{
+	right: 1%;
+	bottom: 5%;
+	width: 80;
+	height: 80;
+	background-color: #288000;
+	border-color: #288000;
+	border-width: 5px;
+	border-radius: 5px;
+	transition: background-color .2s;
+}
+#shop:hover{
+	background-color: #36ab00;
+}
 	</style>
-
 </head>
 <body>
 	<canvas id="myCanvas" width="200" height="100"></canvas>
 	<button id="home"><i class="fas fa-home"></i></button>
+	<button id="shop"><h1><i class="fas fa-shopping-cart"></i></h1></button>
 </body>
 </html>

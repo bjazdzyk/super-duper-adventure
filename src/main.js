@@ -343,21 +343,21 @@ document.addEventListener('mouseup', e => {
 
 c.addEventListener('mousedown', e => {
   if (e.button === 2) {
-    lastX = e.offsetX
-    lastY = e.offsetY
+    lastX = e.clientX
+    lastY = e.clientY
     isDragging = true
   } else if (e.button === 0 && !isDragging) {
     Clicked = true
-    clickX = e.offsetX
-    clickY = e.offsetY
+    clickX = e.clientX
+    clickY = e.clientY
   }
 })
 document.addEventListener('mousemove', e => {
   if (isDragging === true) {
-    deltaX = e.offsetX - lastX
-    deltaY = e.offsetY - lastY
-    lastX = e.offsetX
-    lastY = e.offsetY
+    deltaX = e.clientX - lastX
+    deltaY = e.clientY - lastY
+    lastX = e.clientX
+    lastY = e.clientY
     scrollingOffset.x += -hexcoords(deltaX, deltaY).x / _H * krat / 4
     scrollingOffset.y += -hexcoords(deltaX, deltaY).y / _H * krat / 4
   }
