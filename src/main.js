@@ -251,8 +251,10 @@ let offsetW, offsetH
 
 let a = _H / krat * 2
 
-let wood = 100
-let woodLimit = 300
+let wood = 1000
+let woodLimit = 1000
+let stone = 1000
+let stoneLimit = 1000
 
 
 const loop = (time) => {
@@ -287,9 +289,19 @@ const loop = (time) => {
     ctx.lineWidth = 2
     ctx.stroke()
     drawObject(_W-215, 50, 25, 1)
-    document.getElementById("home").style["z-index"] = -1;
+    //stone storage
+    ctx.roundRect(_W-440, 30, stone/stoneLimit*200, 30, 10)
+    ctx.fillStyle = "#525252"
+    ctx.fill()
+    ctx.roundRect(_W-440, 30, 200, 30, 10) 
+    ctx.lineWidth = 2
+    ctx.stroke()
+
+    document.getElementById("home").style.display = "none";
+    document.getElementById("stonePit").style.display = "block";
   }else if(toggleShop == 0){
-    document.getElementById("home").style["z-index"] = 1;
+    document.getElementById("home").style.display = "block";
+    document.getElementById("stonePit").style.display = "none";
     // clear screen
     ctx.fillStyle = '#0000FF'
     ctx.fillRect(0, 0, _W, _H)
@@ -332,7 +344,7 @@ const loop = (time) => {
       drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
       
       //cell info
-      ctx.roundRect(_W*0.99-200, _H*0.02 + 30, 200, _H*0.3, 10);
+      ctx.roundRect(_W*0.99-200, _H*0.03 + 60, 200, _H*0.3, 10);
       ctx.fillStyle = "#a6935a"
       ctx.fill()
       ctx.strokeStyle = "black"
@@ -350,6 +362,13 @@ const loop = (time) => {
     ctx.lineWidth = 2
     ctx.stroke()
     drawObject(_W*0.99-185, _H*0.01 + 20, 25, 1)
+    //stone storage
+    ctx.roundRect(_W*0.99-200, _H*0.02 + 30, stone/stoneLimit*200, 30, 10)
+    ctx.fillStyle = "#525252"
+    ctx.fill()
+    ctx.roundRect(_W*0.99-200, _H*0.02 + 30, 200, 30, 10) 
+    ctx.lineWidth = 2
+    ctx.stroke()
 
     TWEEN.update(time)
   }
