@@ -21,9 +21,19 @@ CanvasRenderingContext2D.prototype.roundRect =(x, y, width, height, radius)=> {
   return ctx;
 }
 
-const drawHexagon = (x, y, s, color, type = 'normal') => {
+const drawHexagon = (x, y, s, biome, type = 'normal') => {
+  if(biome === 0){
+    return
+  }else if(biome === 1){
+    ctx.fillStyle = '#19bf1e' // plains
+  }else if(biome === 2){
+    ctx.fillStyle = '#2e8200' // mountains
+  }else if(biome === 4){
+    ctx.fillStyle = '#d8eb02' // beach
+  }else{
+    ctx.fillStyle = biome
+  }
   if (type === 'normal') {
-    ctx.fillStyle = color
     ctx.strokeStyle = '#000000'
     ctx.lineWidth = 1
   } else if (type === 'cursor') {
@@ -238,6 +248,10 @@ let clickX, clickY
 
 let a = _H / krat * 2
 
+let wood = 100
+let woodLimit = 300
+
+
 const loop = (time) => {
   _W = window.innerWidth
   _H = window.innerHeight
@@ -255,8 +269,8 @@ const loop = (time) => {
   ctx.fillRect(0, 0, _W, _H)
 
   // render Tarrain
-  for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(_W/_H*krat/5); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(_W/_H*krat/5)+1; i++) {
-    for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(_W/_H*krat/5); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(_W/_H*krat/5)+1; j++) {
+  for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3)+1; i++) {
+    for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3)+1; j++) {
       if (Clicked && checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, clickX, clickY)) {
         if(cursor.x === i && cursor.y === j){
           cursor = {x: "nope", y: "nope"}
@@ -267,17 +281,11 @@ const loop = (time) => {
         Clicked = false
       }
       if(offsetW + a * hexcoords(i, j).x + a > 0 && offsetH + a * hexcoords(i, j).y + a > 0 && offsetW + a * hexcoords(i, j).x - a < _W && offsetH + a * hexcoords(i, j).y - a < _H){
+        if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
+          generateCell(i, j)
+        }
         if (E[strcoords(i, j)] === 1) {
-          if (T[strcoords(i, j)] === 1) {
-            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#19bf1e')
-            // plains
-          } else if (T[strcoords(i, j)] === 2) {
-            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#2e8200')
-            // mountains
-          } else if (T[strcoords(i, j)] === 4) {
-            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#d8eb02')
-            // beach
-          }
+          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, T[strcoords(i, j)])
 
           drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
 
@@ -287,11 +295,6 @@ const loop = (time) => {
           } else {
             drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#cccccc')
           }
-        }
-
-        if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
-          generateCell(i, j)
-
         }
       }
     }
