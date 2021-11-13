@@ -6,6 +6,7 @@ import SimplexNoise from 'simplex-noise'
 import TWEEN from '@tweenjs/tween.js'
 const c = document.getElementById('myCanvas')
 const homeButton = document.getElementById('home')
+const shopButton = document.getElementById('shop')
 const ctx = c.getContext('2d')
 
 CanvasRenderingContext2D.prototype.roundRect =(x, y, width, height, radius)=> {
@@ -245,6 +246,8 @@ let _W = window.innerWidth
 let _H = window.innerHeight
 let Clicked = false
 let clickX, clickY
+let toggleShop = 0
+let offsetW, offsetH
 
 let a = _H / krat * 2
 
@@ -253,80 +256,103 @@ let woodLimit = 300
 
 
 const loop = (time) => {
+  window.requestAnimationFrame(loop)
+
   _W = window.innerWidth
   _H = window.innerHeight
   a = _H / krat * 2
 
-  const offsetH = _H / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).y - a * 3 / 4
-  const offsetW = _W / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).x - a
+  offsetH = _H / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).y - a * 3 / 4
+  offsetW = _W / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).x - a
 
-  window.requestAnimationFrame(loop)
   c.width = _W
   c.height = _H
 
-  // clear screen
-  ctx.fillStyle = '#0000FF'
-  ctx.fillRect(0, 0, _W, _H)
+  
+  if(toggleShop === 1){
+    //shop gui
+    // clear screen
+    ctx.fillStyle = '#699129'
+    ctx.fillRect(0, 0, _W, _H)
+    
+    ctx.roundRect(20, 20, _W-40, _H-40, 20)
+    ctx.fillStyle = '#78a62e'
+    ctx.fill()
 
-  // render Tarrain
-  for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3)+1; i++) {
-    for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3)+1; j++) {
-      if (Clicked && checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, clickX, clickY)) {
-        if(cursor.x === i && cursor.y === j){
-          cursor = {x: "nope", y: "nope"}
-        }else{
-          cursor.x = i
-          cursor.y = j
+    //wood storage
+    ctx.roundRect(_W-230, 30, wood/woodLimit*200, 30, 10)
+    ctx.fillStyle = "#9c772d"
+    ctx.fill()
+    ctx.roundRect(_W-230, 30, 200, 30, 10) 
+    ctx.lineWidth = 2
+    ctx.stroke()
+    drawObject(_W-215, 50, 25, 1)
+    document.getElementById("home").style["z-index"] = -1;
+  }else if(toggleShop == 0){
+    document.getElementById("home").style["z-index"] = 1;
+    // clear screen
+    ctx.fillStyle = '#0000FF'
+    ctx.fillRect(0, 0, _W, _H)
+    // render Tarrain
+    for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3)+1; i++) {
+      for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3)+1; j++) {
+        if (Clicked && checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, clickX, clickY)) {
+          if(cursor.x === i && cursor.y === j){
+            cursor = {x: "nope", y: "nope"}
+          }else{
+            cursor.x = i
+            cursor.y = j
+          }
+          Clicked = false
         }
-        Clicked = false
-      }
-      if(offsetW + a * hexcoords(i, j).x + a > 0 && offsetH + a * hexcoords(i, j).y + a > 0 && offsetW + a * hexcoords(i, j).x - a < _W && offsetH + a * hexcoords(i, j).y - a < _H){
-        if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
-          generateCell(i, j)
-        }
-        if (E[strcoords(i, j)] === 1) {
-          drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, T[strcoords(i, j)])
+        if(offsetW + a * hexcoords(i, j).x + a > 0 && offsetH + a * hexcoords(i, j).y + a > 0 && offsetW + a * hexcoords(i, j).x - a < _W && offsetH + a * hexcoords(i, j).y - a < _H){
+          if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
+            generateCell(i, j)
+          }
+          if (E[strcoords(i, j)] === 1) {
+            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, T[strcoords(i, j)])
 
-          drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
+            drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
 
-        } else {
-          if (T[strcoords(i, j)] <= 0) {
-            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
           } else {
-            drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#cccccc')
+            if (T[strcoords(i, j)] <= 0) {
+              drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
+            } else {
+              drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#cccccc')
+            }
           }
         }
       }
     }
-  }
-  if(offsetW + a * hexcoords(cursor.x, cursor.y).x + a < 0 || offsetW + a * hexcoords(cursor.x, cursor.y).x - a > _W){
-    cursor = {x: "nope", y: "nope"}
-  }
-  if(cursor.x !== "nope" && cursor.y !== "nope"){
-    //draw cursor
-    drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
-    
-    //cell info
-    ctx.roundRect(_W*0.99-200, _H*0.02 + 30, 200, _H*0.3, 10);
-    ctx.fillStyle = "#a6935a"
+    if(offsetW + a * hexcoords(cursor.x, cursor.y).x + a < 0 || offsetW + a * hexcoords(cursor.x, cursor.y).x - a > _W || offsetH + a * hexcoords(cursor.x, cursor.y).y + a/2 < 0 || offsetH + a * hexcoords(cursor.x, cursor.y).y - a > _H){
+      cursor = {x: "nope", y: "nope"}
+    }
+    if(cursor.x !== "nope" && cursor.y !== "nope"){
+      //draw cursor
+      drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
+      
+      //cell info
+      ctx.roundRect(_W*0.99-200, _H*0.02 + 30, 200, _H*0.3, 10);
+      ctx.fillStyle = "#a6935a"
+      ctx.fill()
+      ctx.strokeStyle = "black"
+      ctx.lineWidth = 2
+      ctx.stroke()
+
+      ctx.lineWidth = 1
+      drawObject(_W*0.99-100, _H*0.06 + 30, _H*0.04, O[strcoords(cursor.x, cursor.y)])
+    }
+    //wood storage
+    ctx.roundRect(_W*0.99-200, _H*0.01, wood/woodLimit*200, 30, 10)
+    ctx.fillStyle = "#9c772d"
     ctx.fill()
-    ctx.strokeStyle = "black"
+    ctx.roundRect(_W*0.99-200, _H*0.01, 200, 30, 10) 
     ctx.lineWidth = 2
     ctx.stroke()
+    drawObject(_W*0.99-185, _H*0.01 + 20, 25, 1)
 
-    ctx.lineWidth = 1
-    drawObject(_W*0.99-100, _H*0.06 + 30, _H*0.04, O[strcoords(cursor.x, cursor.y)])
+    TWEEN.update(time)
   }
-  //wood storage
-  ctx.roundRect(_W*0.99-200, _H*0.01, wood/woodLimit*200, 30, 10)
-  ctx.fillStyle = "#9c772d"
-  ctx.fill()
-  ctx.roundRect(_W*0.99-200, _H*0.01, 200, 30, 10) 
-  ctx.lineWidth = 2
-  ctx.stroke()
-  drawObject(_W*0.99-185, _H*0.01 + 20, 25, 1)
-
-  TWEEN.update(time)
 }
 
 let isDragging = false
@@ -381,6 +407,7 @@ document.addEventListener('contextmenu', e => {
 }, false)
 
 homeButton.addEventListener('mousedown', e => {
+  console.log("clicked")
   if (!(scrollingOffset.x === 0 && scrollingOffset.y === 0)) {
     const tween = new TWEEN.Tween(scrollingOffset)
       .to({ x: 0, y: 0 }, 1000)
@@ -398,7 +425,10 @@ homeButton.addEventListener('mousedown', e => {
     cursor.x = basePosition.x
     cursor.y = basePosition.y
   }
-  
+})
+
+shopButton.addEventListener('mousedown', e =>{
+  toggleShop = (toggleShop + 1)%2
 })
 
 loop()
