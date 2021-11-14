@@ -81,7 +81,79 @@ const drawObject = (x, y, s, type) => {
 }
 
 const drawBuilding =(x, y, s, type)=>{
-  console.log(x, y, s, type);
+  let m = s/8
+  if(type === 1){
+    ctx.fillStyle = 'gray'
+    ctx.lineWidth = 1
+    ctx.strokeStyle = 'black'
+
+    ctx.beginPath()
+    ctx.moveTo(x-m*3.5, y)
+    ctx.lineTo(x-m*3, y-m)
+    ctx.lineTo(x-m*2.5, y-m)
+    ctx.lineTo(x-m*2.5, y-m*2)
+    ctx.lineTo(x-m*2, y-m*2.5)
+    ctx.lineTo(x-m*1.5, y-m*3.5)
+    ctx.lineTo(x-m, y-m*3)
+    ctx.lineTo(x-m*0.5, y-m*3)
+    ctx.lineTo(x, y-m*3.5)
+    ctx.lineTo(x+m, y-m*3.5)
+    ctx.lineTo(x+m*1.5, y-m*4)
+    ctx.lineTo(x+m*2, y-m*3)
+    ctx.lineTo(x+m*2.5, y-m*3)
+    ctx.lineTo(x+m*2.5, y-m*2)
+    ctx.lineTo(x+m*3, y-m)
+    ctx.lineTo(x+m*3.5, y-m*1.5)
+    ctx.lineTo(x+m*4, y)
+    ctx.lineTo(x-m*3.5, y)
+
+    ctx.moveTo(x-m*4.5, y)
+    ctx.lineTo(x-m*4, y-m*0.5)
+    ctx.lineTo(x-m*4, y)
+    ctx.lineTo(x-m*4.5, y)
+    ctx.closePath()
+
+    ctx.fill()
+    ctx.stroke()
+
+    ctx.fillStyle = "#573c05"
+
+    ctx.beginPath()
+    ctx.moveTo(x-m*1.5, y)
+    ctx.lineTo(x-m, y)
+    ctx.lineTo(x-m*0.5, y-m*2)
+    ctx.lineTo(x-m, y-m*2)
+    ctx.lineTo(x-m*1.5, y)
+
+    ctx.moveTo(x+m*1.5, y)
+    ctx.lineTo(x+m, y)
+    ctx.lineTo(x+m*0.5, y-m*2)
+    ctx.lineTo(x+m, y-m*2)
+    ctx.lineTo(x+m*1.5, y)
+
+    ctx.moveTo(x-m*1.5, y-m*2.5)
+    ctx.lineTo(x+m*1.5, y-m*2.5)
+    ctx.lineTo(x+m*1.25, y-m*2)
+    ctx.lineTo(x-m*1.25, y-m*2)
+    ctx.lineTo(x-m*1.5, y-m*2.5)
+    ctx.closePath()
+
+    ctx.fill()
+    ctx.stroke()
+
+    ctx.fillStyle = 'black'
+
+    ctx.beginPath()
+    ctx.moveTo(x-m, y)
+    ctx.lineTo(x-m*0.5, y-m*2)
+    ctx.lineTo(x+m*0.5, y-m*2)
+    ctx.lineTo(x+m, y)
+    ctx.closePath()
+
+    ctx.fill()
+
+
+  }
 }
 
 const checkPointInHexagon = (x, y, s, cX, cY) => {
@@ -261,10 +333,10 @@ let mouseX, mouseY
 
 let a = _H / krat * 2
 
-let wood = 1000
-let woodLimit = 1000
-let stone = 1000
-let stoneLimit = 1000
+let wood = 300
+let woodLimit = 500
+let stone = 300
+let stoneLimit = 500
 
 
 const loop = (time) => {
@@ -334,8 +406,8 @@ const loop = (time) => {
           }
           if (E[strcoords(i, j)] === 1) {
             drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, T[strcoords(i, j)])
-
             drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
+            drawBuilding(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, B[strcoords(i, j)])
 
           } else {
             if (T[strcoords(i, j)] <= 0) {
@@ -425,7 +497,9 @@ c.addEventListener('mousedown', e => {
     isDragging = true
   }else if(placing !== 0){
     //placed building
-    if(E[strcoords(cursor.x, cursor.y)]){
+    if(E[strcoords(cursor.x, cursor.y)] && stone >= 50 && wood >=20){
+      stone -= 50
+      wood -= 20
       B[strcoords(cursor.x, cursor.y)] = placing
       placing = 0
       explore(cursor.x, cursor.y, 1)
