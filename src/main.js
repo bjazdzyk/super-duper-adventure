@@ -7,6 +7,7 @@ import TWEEN from '@tweenjs/tween.js'
 const c = document.getElementById('myCanvas')
 const homeButton = document.getElementById('home')
 const shopButton = document.getElementById('shop')
+const stonePitButton = document.getElementById('stonePit')
 const ctx = c.getContext('2d')
 
 CanvasRenderingContext2D.prototype.roundRect =(x, y, width, height, radius)=> {
@@ -39,7 +40,7 @@ const drawHexagon = (x, y, s, biome, type = 'normal') => {
     ctx.lineWidth = 1
   } else if (type === 'cursor') {
     ctx.lineWidth = 5
-    ctx.strokestyle = '#000000'
+    ctx.strokeStyle = biome
   }
   ctx.beginPath()
   ctx.moveTo(x, y - s / 2)
@@ -53,7 +54,7 @@ const drawHexagon = (x, y, s, biome, type = 'normal') => {
   if (type === 'normal') {
     ctx.stroke()
     ctx.fill()
-  } else if (type === 'cursor') {
+  } else if (type === 'cursor' || type === "placingCursor") {
     ctx.stroke()
   }
 }
@@ -77,6 +78,10 @@ const drawObject = (x, y, s, type) => {
     ctx.fillRect(x - s, y - s, s * 2, s)
     ctx.strokeRect(x - s, y - s, s * 2, s)
   }
+}
+
+const drawBuilding =(x, y, s, type)=>{
+  console.log(x, y, s, type);
 }
 
 const checkPointInHexagon = (x, y, s, cX, cY) => {
@@ -119,13 +124,16 @@ const simplex = new SimplexNoise()
 let krat = 20
 
 // biomes
-const T = {}
+let T = {}
 
 // objects
-const O = {}
+let O = {}
+
+//buildings
+let B = {}
 
 // explored terrain
-const E = {}
+let E = {}
 
 const basePosition = { x: 0, y: 0 }
 
@@ -248,6 +256,8 @@ let Clicked = false
 let clickX, clickY
 let toggleShop = 0
 let offsetW, offsetH
+let placing = 0
+let mouseX, mouseY
 
 let a = _H / krat * 2
 
@@ -317,6 +327,7 @@ const loop = (time) => {
           }
           Clicked = false
         }
+
         if(offsetW + a * hexcoords(i, j).x + a > 0 && offsetH + a * hexcoords(i, j).y + a > 0 && offsetW + a * hexcoords(i, j).x - a < _W && offsetH + a * hexcoords(i, j).y - a < _H){
           if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
             generateCell(i, j)
@@ -334,27 +345,48 @@ const loop = (time) => {
             }
           }
         }
+        if(placing !== 0){
+          if(checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, mouseX, mouseY)){
+            cursor.x = i
+            cursor.y = j
+          }
+        }
       }
     }
     if(offsetW + a * hexcoords(cursor.x, cursor.y).x + a < 0 || offsetW + a * hexcoords(cursor.x, cursor.y).x - a > _W || offsetH + a * hexcoords(cursor.x, cursor.y).y + a/2 < 0 || offsetH + a * hexcoords(cursor.x, cursor.y).y - a > _H){
       cursor = {x: "nope", y: "nope"}
     }
-    if(cursor.x !== "nope" && cursor.y !== "nope"){
-      //draw cursor
-      drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
-      
-      //cell info
-      ctx.roundRect(_W*0.99-200, _H*0.03 + 60, 200, _H*0.3, 10);
-      ctx.fillStyle = "#a6935a"
-      ctx.fill()
-      ctx.strokeStyle = "black"
-      ctx.lineWidth = 2
-      ctx.stroke()
 
-      ctx.lineWidth = 1
-      drawObject(_W*0.99-100, _H*0.06 + 30, _H*0.04, O[strcoords(cursor.x, cursor.y)])
+
+    console.log(placing)
+    if(placing === 0){
+      if(cursor.x !== "nope" && cursor.y !== "nope"){
+        //draw cursor
+        drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
+        
+        //cell info
+        ctx.roundRect(_W*0.99-200, _H*0.03 + 60, 200, _H*0.3, 10);
+        ctx.fillStyle = "#a6935a"
+        ctx.fill()
+        ctx.strokeStyle = "black"
+        ctx.lineWidth = 2
+        ctx.stroke()
+
+        ctx.lineWidth = 1
+        drawObject(_W*0.99-100, _H*0.06 + 60, _H*0.04, O[strcoords(cursor.x, cursor.y)])
+      }
+    }else{
+      //draw cursor
+      if(Math.floor(time)%800<700){
+        if(E[strcoords(cursor.x, cursor.y)]){
+          drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+        }else{
+          drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+        }
+      }
     }
     //wood storage
+    ctx.strokeStyle = "black"
     ctx.roundRect(_W*0.99-200, _H*0.01, wood/woodLimit*200, 30, 10)
     ctx.fillStyle = "#9c772d"
     ctx.fill()
@@ -391,13 +423,24 @@ c.addEventListener('mousedown', e => {
     lastX = e.clientX
     lastY = e.clientY
     isDragging = true
-  } else if (e.button === 0 && !isDragging) {
+  }else if(placing !== 0){
+    //placed building
+    if(E[strcoords(cursor.x, cursor.y)]){
+      B[strcoords(cursor.x, cursor.y)] = placing
+      placing = 0
+      explore(cursor.x, cursor.y, 1)
+    }
+  }else if (e.button === 0 && !isDragging) {
     Clicked = true
     clickX = e.clientX
     clickY = e.clientY
   }
+
+
 })
 document.addEventListener('mousemove', e => {
+  mouseX = e.clientX
+  mouseY = e.clientY
   if (isDragging === true) {
     deltaX = e.clientX - lastX
     deltaY = e.clientY - lastY
@@ -426,7 +469,6 @@ document.addEventListener('contextmenu', e => {
 }, false)
 
 homeButton.addEventListener('mousedown', e => {
-  console.log("clicked")
   if (!(scrollingOffset.x === 0 && scrollingOffset.y === 0)) {
     const tween = new TWEEN.Tween(scrollingOffset)
       .to({ x: 0, y: 0 }, 1000)
@@ -446,8 +488,13 @@ homeButton.addEventListener('mousedown', e => {
   }
 })
 
-shopButton.addEventListener('mousedown', e =>{
+shopButton.addEventListener('click', e =>{
   toggleShop = (toggleShop + 1)%2
+})
+
+stonePitButton.addEventListener('click', e=>{
+  toggleShop = 0
+  placing = 1
 })
 
 loop()
