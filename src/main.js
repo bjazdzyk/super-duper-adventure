@@ -340,6 +340,8 @@ let woodLimit = 500
 let stone = 300
 let stoneLimit = 500
 
+let stoneIncreasing = 0
+
 let time = Date.now()
 let lastTime = Date.now()
 
@@ -347,6 +349,10 @@ let lastTime = Date.now()
 const loop = (tick) => {
   window.requestAnimationFrame(loop)
   time = Date.now()
+
+  if(time%100<=20){
+    stone = Math.min(stoneLimit, stone+stoneIncreasing)
+  }
 
   _W = window.innerWidth
   _H = window.innerHeight
@@ -503,6 +509,7 @@ c.addEventListener('mousedown', e => {
     //placed building
     if(E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] == 1 || T[strcoords(cursor.x, cursor.y)] == 2) && O[strcoords(cursor.x, cursor.y)] === 0){
       if(stone >= 50 && wood >=20){
+        stoneIncreasing += 0.1
         stone -= 50
         wood -= 20
         B[strcoords(cursor.x, cursor.y)] = placing
