@@ -8,6 +8,7 @@ const c = document.getElementById('myCanvas')
 const homeButton = document.getElementById('home')
 const shopButton = document.getElementById('shop')
 const stonePitButton = document.getElementById('stonePit')
+const observationTowerButton = document.getElementById('observationTower')
 const ctx = c.getContext('2d')
 
 CanvasRenderingContext2D.prototype.roundRect =(x, y, width, height, radius)=> {
@@ -81,8 +82,8 @@ const drawObject = (x, y, s, type) => {
 }
 
 const drawBuilding =(x, y, s, type)=>{
-  let m = s/8
-  if(type === 1){
+  if(type === 1){//stone pit
+    let m = s/8
     ctx.fillStyle = 'gray'
     ctx.lineWidth = 1
     ctx.strokeStyle = 'black'
@@ -151,7 +152,73 @@ const drawBuilding =(x, y, s, type)=>{
     ctx.closePath()
 
     ctx.fill()
+  }else if(type === 2){//observation tower
+    let m = s/6
+    ctx.fillStyle = '#402800'
+    ctx.lineWidth = 1
+    ctx.strokeStyle = 'black'
 
+    ctx.beginPath()
+    ctx.moveTo(x-m*1.5, y)
+    ctx.lineTo(x-m, y)
+    ctx.lineTo(x-m*0.5, y-m*2)
+    ctx.lineTo(x-m, y-m*2)
+    ctx.lineTo(x-m*1.5, y)
+    ctx.moveTo(x+m*1.5, y)
+    ctx.lineTo(x+m, y)
+    ctx.lineTo(x+m*0.5, y-m*2)
+    ctx.lineTo(x+m, y-m*2)
+    ctx.lineTo(x+m*1.5, y)
+
+    ctx.moveTo(x-m*1.75, y-m*4)
+    ctx.lineTo(x-m*1.5, y-m*4.5)
+    ctx.lineTo(x+m*1.5, y-m*4.5)
+    ctx.lineTo(x+m*1.75, y-m*4)
+
+    ctx.moveTo(x+m, y-m*3)
+    ctx.lineTo(x+m, y-m*4)
+    ctx.lineTo(x+m*1.25, y-m*4)
+    ctx.lineTo(x+m*1.25, y-m*3)
+    ctx.moveTo(x-m, y-m*3)
+    ctx.lineTo(x-m, y-m*4)
+    ctx.lineTo(x-m*1.25, y-m*4)
+    ctx.lineTo(x-m*1.25, y-m*3)
+    ctx.closePath()
+
+    ctx.fill()
+    ctx.stroke()
+
+    ctx.strokeStyle = '#3d3d3d'
+    ctx.lineWidth = 2
+
+    ctx.beginPath()
+    ctx.moveTo(x-m, y)
+    ctx.lineTo(x+m*0.5, y-m*2)
+    ctx.moveTo(x+m, y)
+    ctx.lineTo(x-m*0.5, y-m*2)
+    ctx.closePath()
+
+    ctx.stroke()
+
+    ctx.fillStyle = '#3d3d3d'
+    ctx.strokeStyle = "black"
+    ctx.lineWidth = 1
+
+    ctx.beginPath()
+    ctx.moveTo(x-m*1.25, y-m*2)
+    ctx.lineTo(x+m*1.25, y-m*2)
+    ctx.lineTo(x+m*1.5, y-m*3)
+    ctx.lineTo(x-m*1.5, y-m*3)
+    ctx.lineTo(x-m*1.25, y-m*2)
+    ctx.moveTo(x-m*1.75, y-m*4)
+    ctx.lineTo(x+m*1.75, y-m*4)
+    ctx.lineTo(x+m*1.5, y-m*3.75)
+    ctx.lineTo(x-m*1.5, y-m*3.75)
+    ctx.lineTo(x-m*1.75, y-m*4)
+    ctx.closePath()
+
+    ctx.fill()
+    ctx.stroke()
 
   }
 }
@@ -341,6 +408,8 @@ let stone = 300
 let stoneLimit = 500
 
 let stoneIncreasing = 0
+let stonePitPrice = {wood:20, stone:30}
+let observationTowerPrice = {wood:50, stone:50}
 
 let time = Date.now()
 let lastTime = Date.now()
@@ -366,6 +435,7 @@ const loop = (tick) => {
 
   
   if(toggleShop === 1){
+    //document.getElementById("stonePit").innerHTML = "<h3>Stone Pit</h3></br>";
     //shop gui
     // clear screen
     ctx.fillStyle = '#699129'
@@ -393,9 +463,11 @@ const loop = (tick) => {
 
     document.getElementById("home").style.display = "none";
     document.getElementById("stonePit").style.display = "block";
+    document.getElementById("observationTower").style.display = "block";
   }else if(toggleShop == 0){
     document.getElementById("home").style.display = "block";
     document.getElementById("stonePit").style.display = "none";
+    document.getElementById("observationTower").style.display = "none";
     // clear screen
     ctx.fillStyle = '#0000FF'
     ctx.fillRect(0, 0, _W, _H)
@@ -508,12 +580,21 @@ c.addEventListener('mousedown', e => {
   }else if(placing !== 0){
     //placed building
     if(E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] == 1 || T[strcoords(cursor.x, cursor.y)] == 2) && O[strcoords(cursor.x, cursor.y)] === 0){
-      if(stone >= 50 && wood >=20){
-        stoneIncreasing += 0.1
-        stone -= 50
-        wood -= 20
-        B[strcoords(cursor.x, cursor.y)] = placing
-        explore(cursor.x, cursor.y, 1)
+      if(placing === 1){
+        if(stone >= stonePitPrice.stone && wood >= stonePitPrice.wood){
+          stoneIncreasing += 0.1
+          stone -= stonePitPrice.stone
+          wood -= stonePitPrice.wood
+          explore(cursor.x, cursor.y, 1)
+          B[strcoords(cursor.x, cursor.y)] = placing
+        }
+      }else if(placing === 2){
+        if(stone >= observationTowerPrice.stone && wood >= observationTowerPrice.wood){
+          stone -= observationTowerPrice.stone
+          wood -= observationTowerPrice.wood
+          explore(cursor.x, cursor.y, 3)
+          B[strcoords(cursor.x, cursor.y)] = placing
+        }
       }
       placing = 0
     }
@@ -545,8 +626,8 @@ document.addEventListener('wheel', e => {
   if (krat < 20) {
     krat = 20
   }
-  if (krat > 35) {
-    krat = 35
+  if (krat > 60) {
+    krat = 60
   }
 })
 
@@ -582,6 +663,11 @@ shopButton.addEventListener('click', e =>{
 stonePitButton.addEventListener('click', e=>{
   toggleShop = 0
   placing = 1
+})
+
+observationTowerButton.addEventListener('click', e=>{
+  toggleShop = 0
+  placing = 2
 })
 
 loop()
