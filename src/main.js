@@ -238,6 +238,8 @@ const generationLogics = (x) => {
 
     if (x * 2 + 1 >= 1.25 && x * 2 + 1 < 2 && Math.floor((x * 2 + 1) * 10000) % 3 === 0) {
       R.O = 1 // forest
+    }else{
+      R.O = 0
     }
   } else {
     R.T = 0 // biome
@@ -338,9 +340,13 @@ let woodLimit = 500
 let stone = 300
 let stoneLimit = 500
 
+let time = Date.now()
+let lastTime = Date.now()
 
-const loop = (time) => {
+
+const loop = (tick) => {
   window.requestAnimationFrame(loop)
+  time = Date.now()
 
   _W = window.innerWidth
   _H = window.innerHeight
@@ -429,8 +435,6 @@ const loop = (time) => {
       cursor = {x: "nope", y: "nope"}
     }
 
-
-    console.log(placing)
     if(placing === 0){
       if(cursor.x !== "nope" && cursor.y !== "nope"){
         //draw cursor
@@ -450,7 +454,7 @@ const loop = (time) => {
     }else{
       //draw cursor
       if(Math.floor(time)%800<700){
-        if(E[strcoords(cursor.x, cursor.y)]){
+        if(E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] == 1 || T[strcoords(cursor.x, cursor.y)] == 2) && O[strcoords(cursor.x, cursor.y)] === 0){
           drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
         }else{
           drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
@@ -474,7 +478,7 @@ const loop = (time) => {
     ctx.lineWidth = 2
     ctx.stroke()
 
-    TWEEN.update(time)
+    TWEEN.update(tick)
   }
 }
 
@@ -497,12 +501,14 @@ c.addEventListener('mousedown', e => {
     isDragging = true
   }else if(placing !== 0){
     //placed building
-    if(E[strcoords(cursor.x, cursor.y)] && stone >= 50 && wood >=20){
-      stone -= 50
-      wood -= 20
-      B[strcoords(cursor.x, cursor.y)] = placing
+    if(E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] == 1 || T[strcoords(cursor.x, cursor.y)] == 2) && O[strcoords(cursor.x, cursor.y)] === 0){
+      if(stone >= 50 && wood >=20){
+        stone -= 50
+        wood -= 20
+        B[strcoords(cursor.x, cursor.y)] = placing
+        explore(cursor.x, cursor.y, 1)
+      }
       placing = 0
-      explore(cursor.x, cursor.y, 1)
     }
   }else if (e.button === 0 && !isDragging) {
     Clicked = true
