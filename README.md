@@ -8,8 +8,8 @@
 - mouse wheel to scroll terrain
 - left click to select hexagon
 
-### screenshot:
-![Screenshot](.github/screenshot.png)
-
 ### DEMO:
 *check it out* https://bjazdzyk.github.io/super-duper-adventure/
+
+### screenshot:
+![Screenshot](.github/screenshot.png)

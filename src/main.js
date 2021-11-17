@@ -516,7 +516,6 @@ const loop = (tick) => {
   c.height = _H
 
   if (toggleShop === 1) {
-    // document.getElementById("stonePit").innerHTML = "<h3>Stone Pit</h3></br>";
     // shop gui
     // clear screen
     ctx.fillStyle = '#699129'
@@ -546,6 +545,17 @@ const loop = (tick) => {
     stonePitButton.style.display = 'block'
     observationTowerButton.style.display = 'block'
     sawmillButton.style.display = 'block'
+
+    const shopButtonWidth = parseInt(window.getComputedStyle(stonePitButton).width)
+    const shopButtonHeight = parseInt(window.getComputedStyle(stonePitButton).height)
+    const shopButtonY = parseInt(window.getComputedStyle(stonePitButton).top)
+    const stonePitX = parseInt(window.getComputedStyle(stonePitButton).left)
+    const sawmillX = parseInt(window.getComputedStyle(sawmillButton).left)
+    const observationTowerX = parseInt(window.getComputedStyle(observationTowerButton).left)
+    drawBuilding(stonePitX + shopButtonWidth/2, shopButtonY + shopButtonHeight*2 + 10, shopButtonHeight*4/3, 1)
+    drawBuilding(sawmillX + shopButtonWidth/2, shopButtonY + shopButtonHeight*2 + 10, shopButtonHeight*4/3, 3)
+    drawBuilding(observationTowerX + shopButtonWidth/2, shopButtonY + shopButtonHeight*2 + 10, shopButtonHeight*4/3, 2)
+
   } else if (toggleShop === 0) {
     document.getElementById('home').style.display = 'block'
     stonePitButton.style.display = 'none'
