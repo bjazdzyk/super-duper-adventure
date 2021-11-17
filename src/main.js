@@ -11,29 +11,29 @@ const stonePitButton = document.getElementById('stonePit')
 const observationTowerButton = document.getElementById('observationTower')
 const ctx = c.getContext('2d')
 
-CanvasRenderingContext2D.prototype.roundRect =(x, y, width, height, radius)=> {
-  if (width < 2 * radius) radius = width / 2;
-  if (height < 2 * radius) radius = height / 2;
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-  ctx.arcTo(x + width, y, x + width, y + height, radius);
-  ctx.arcTo(x + width, y + height, x, y + height, radius);
-  ctx.arcTo(x, y + height, x, y, radius);
-  ctx.arcTo(x, y, x + width, y, radius);
-  ctx.closePath();
-  return ctx;
+window.CanvasRenderingContext2D.prototype.roundRect = (x, y, width, height, radius) => {
+  if (width < 2 * radius) radius = width / 2
+  if (height < 2 * radius) radius = height / 2
+  ctx.beginPath()
+  ctx.moveTo(x + radius, y)
+  ctx.arcTo(x + width, y, x + width, y + height, radius)
+  ctx.arcTo(x + width, y + height, x, y + height, radius)
+  ctx.arcTo(x, y + height, x, y, radius)
+  ctx.arcTo(x, y, x + width, y, radius)
+  ctx.closePath()
+  return ctx
 }
 
 const drawHexagon = (x, y, s, biome, type = 'normal') => {
-  if(biome === 0){
+  if (biome === 0) {
     return
-  }else if(biome === 1){
+  } else if (biome === 1) {
     ctx.fillStyle = '#19bf1e' // plains
-  }else if(biome === 2){
+  } else if (biome === 2) {
     ctx.fillStyle = '#2e8200' // mountains
-  }else if(biome === 4){
+  } else if (biome === 4) {
     ctx.fillStyle = '#d8eb02' // beach
-  }else{
+  } else {
     ctx.fillStyle = biome
   }
   if (type === 'normal') {
@@ -55,13 +55,13 @@ const drawHexagon = (x, y, s, biome, type = 'normal') => {
   if (type === 'normal') {
     ctx.stroke()
     ctx.fill()
-  } else if (type === 'cursor' || type === "placingCursor") {
+  } else if (type === 'cursor' || type === 'placingCursor') {
     ctx.stroke()
   }
 }
 const drawObject = (x, y, s, type) => {
   if (type === 1) { // forest
-    s/=3
+    s /= 3
     ctx.fillStyle = '#4f2602'
     ctx.strokeStyle = 'black'
     ctx.fillRect(x - s / 2, y - s / 2, s, s)
@@ -73,7 +73,7 @@ const drawObject = (x, y, s, type) => {
     ctx.fill()
     ctx.stroke()
   } else if (type === 2) { // main base
-    s/=2
+    s /= 2
     ctx.fillStyle = 'gray'
     ctx.strokeStyle = 'black'
     ctx.fillRect(x - s, y - s, s * 2, s)
@@ -81,62 +81,62 @@ const drawObject = (x, y, s, type) => {
   }
 }
 
-const drawBuilding =(x, y, s, type)=>{
-  if(type === 1){//stone pit
-    let m = s/8
+const drawBuilding = (x, y, s, type) => {
+  if (type === 1) { // stone pit
+    const m = s / 8
     ctx.fillStyle = 'gray'
     ctx.lineWidth = 1
     ctx.strokeStyle = 'black'
 
     ctx.beginPath()
-    ctx.moveTo(x-m*3.5, y)
-    ctx.lineTo(x-m*3, y-m)
-    ctx.lineTo(x-m*2.5, y-m)
-    ctx.lineTo(x-m*2.5, y-m*2)
-    ctx.lineTo(x-m*2, y-m*2.5)
-    ctx.lineTo(x-m*1.5, y-m*3.5)
-    ctx.lineTo(x-m, y-m*3)
-    ctx.lineTo(x-m*0.5, y-m*3)
-    ctx.lineTo(x, y-m*3.5)
-    ctx.lineTo(x+m, y-m*3.5)
-    ctx.lineTo(x+m*1.5, y-m*4)
-    ctx.lineTo(x+m*2, y-m*3)
-    ctx.lineTo(x+m*2.5, y-m*3)
-    ctx.lineTo(x+m*2.5, y-m*2)
-    ctx.lineTo(x+m*3, y-m)
-    ctx.lineTo(x+m*3.5, y-m*1.5)
-    ctx.lineTo(x+m*4, y)
-    ctx.lineTo(x-m*3.5, y)
+    ctx.moveTo(x - m * 3.5, y)
+    ctx.lineTo(x - m * 3, y - m)
+    ctx.lineTo(x - m * 2.5, y - m)
+    ctx.lineTo(x - m * 2.5, y - m * 2)
+    ctx.lineTo(x - m * 2, y - m * 2.5)
+    ctx.lineTo(x - m * 1.5, y - m * 3.5)
+    ctx.lineTo(x - m, y - m * 3)
+    ctx.lineTo(x - m * 0.5, y - m * 3)
+    ctx.lineTo(x, y - m * 3.5)
+    ctx.lineTo(x + m, y - m * 3.5)
+    ctx.lineTo(x + m * 1.5, y - m * 4)
+    ctx.lineTo(x + m * 2, y - m * 3)
+    ctx.lineTo(x + m * 2.5, y - m * 3)
+    ctx.lineTo(x + m * 2.5, y - m * 2)
+    ctx.lineTo(x + m * 3, y - m)
+    ctx.lineTo(x + m * 3.5, y - m * 1.5)
+    ctx.lineTo(x + m * 4, y)
+    ctx.lineTo(x - m * 3.5, y)
 
-    ctx.moveTo(x-m*4.5, y)
-    ctx.lineTo(x-m*4, y-m*0.5)
-    ctx.lineTo(x-m*4, y)
-    ctx.lineTo(x-m*4.5, y)
+    ctx.moveTo(x - m * 4.5, y)
+    ctx.lineTo(x - m * 4, y - m * 0.5)
+    ctx.lineTo(x - m * 4, y)
+    ctx.lineTo(x - m * 4.5, y)
     ctx.closePath()
 
     ctx.fill()
     ctx.stroke()
 
-    ctx.fillStyle = "#573c05"
+    ctx.fillStyle = '#573c05'
 
     ctx.beginPath()
-    ctx.moveTo(x-m*1.5, y)
-    ctx.lineTo(x-m, y)
-    ctx.lineTo(x-m*0.5, y-m*2)
-    ctx.lineTo(x-m, y-m*2)
-    ctx.lineTo(x-m*1.5, y)
+    ctx.moveTo(x - m * 1.5, y)
+    ctx.lineTo(x - m, y)
+    ctx.lineTo(x - m * 0.5, y - m * 2)
+    ctx.lineTo(x - m, y - m * 2)
+    ctx.lineTo(x - m * 1.5, y)
 
-    ctx.moveTo(x+m*1.5, y)
-    ctx.lineTo(x+m, y)
-    ctx.lineTo(x+m*0.5, y-m*2)
-    ctx.lineTo(x+m, y-m*2)
-    ctx.lineTo(x+m*1.5, y)
+    ctx.moveTo(x + m * 1.5, y)
+    ctx.lineTo(x + m, y)
+    ctx.lineTo(x + m * 0.5, y - m * 2)
+    ctx.lineTo(x + m, y - m * 2)
+    ctx.lineTo(x + m * 1.5, y)
 
-    ctx.moveTo(x-m*1.5, y-m*2.5)
-    ctx.lineTo(x+m*1.5, y-m*2.5)
-    ctx.lineTo(x+m*1.25, y-m*2)
-    ctx.lineTo(x-m*1.25, y-m*2)
-    ctx.lineTo(x-m*1.5, y-m*2.5)
+    ctx.moveTo(x - m * 1.5, y - m * 2.5)
+    ctx.lineTo(x + m * 1.5, y - m * 2.5)
+    ctx.lineTo(x + m * 1.25, y - m * 2)
+    ctx.lineTo(x - m * 1.25, y - m * 2)
+    ctx.lineTo(x - m * 1.5, y - m * 2.5)
     ctx.closePath()
 
     ctx.fill()
@@ -145,44 +145,44 @@ const drawBuilding =(x, y, s, type)=>{
     ctx.fillStyle = 'black'
 
     ctx.beginPath()
-    ctx.moveTo(x-m, y)
-    ctx.lineTo(x-m*0.5, y-m*2)
-    ctx.lineTo(x+m*0.5, y-m*2)
-    ctx.lineTo(x+m, y)
+    ctx.moveTo(x - m, y)
+    ctx.lineTo(x - m * 0.5, y - m * 2)
+    ctx.lineTo(x + m * 0.5, y - m * 2)
+    ctx.lineTo(x + m, y)
     ctx.closePath()
 
     ctx.fill()
-  }else if(type === 2){//observation tower
-    let m = s/6
+  } else if (type === 2) { // observation tower
+    const m = s / 6
     ctx.fillStyle = '#402800'
     ctx.lineWidth = 1
     ctx.strokeStyle = 'black'
 
     ctx.beginPath()
-    ctx.moveTo(x-m*1.5, y)
-    ctx.lineTo(x-m, y)
-    ctx.lineTo(x-m*0.5, y-m*2)
-    ctx.lineTo(x-m, y-m*2)
-    ctx.lineTo(x-m*1.5, y)
-    ctx.moveTo(x+m*1.5, y)
-    ctx.lineTo(x+m, y)
-    ctx.lineTo(x+m*0.5, y-m*2)
-    ctx.lineTo(x+m, y-m*2)
-    ctx.lineTo(x+m*1.5, y)
+    ctx.moveTo(x - m * 1.5, y)
+    ctx.lineTo(x - m, y)
+    ctx.lineTo(x - m * 0.5, y - m * 2)
+    ctx.lineTo(x - m, y - m * 2)
+    ctx.lineTo(x - m * 1.5, y)
+    ctx.moveTo(x + m * 1.5, y)
+    ctx.lineTo(x + m, y)
+    ctx.lineTo(x + m * 0.5, y - m * 2)
+    ctx.lineTo(x + m, y - m * 2)
+    ctx.lineTo(x + m * 1.5, y)
 
-    ctx.moveTo(x-m*1.75, y-m*4)
-    ctx.lineTo(x-m*1.5, y-m*4.5)
-    ctx.lineTo(x+m*1.5, y-m*4.5)
-    ctx.lineTo(x+m*1.75, y-m*4)
+    ctx.moveTo(x - m * 1.75, y - m * 4)
+    ctx.lineTo(x - m * 1.5, y - m * 4.5)
+    ctx.lineTo(x + m * 1.5, y - m * 4.5)
+    ctx.lineTo(x + m * 1.75, y - m * 4)
 
-    ctx.moveTo(x+m, y-m*3)
-    ctx.lineTo(x+m, y-m*4)
-    ctx.lineTo(x+m*1.25, y-m*4)
-    ctx.lineTo(x+m*1.25, y-m*3)
-    ctx.moveTo(x-m, y-m*3)
-    ctx.lineTo(x-m, y-m*4)
-    ctx.lineTo(x-m*1.25, y-m*4)
-    ctx.lineTo(x-m*1.25, y-m*3)
+    ctx.moveTo(x + m, y - m * 3)
+    ctx.lineTo(x + m, y - m * 4)
+    ctx.lineTo(x + m * 1.25, y - m * 4)
+    ctx.lineTo(x + m * 1.25, y - m * 3)
+    ctx.moveTo(x - m, y - m * 3)
+    ctx.lineTo(x - m, y - m * 4)
+    ctx.lineTo(x - m * 1.25, y - m * 4)
+    ctx.lineTo(x - m * 1.25, y - m * 3)
     ctx.closePath()
 
     ctx.fill()
@@ -192,34 +192,33 @@ const drawBuilding =(x, y, s, type)=>{
     ctx.lineWidth = 2
 
     ctx.beginPath()
-    ctx.moveTo(x-m, y)
-    ctx.lineTo(x+m*0.5, y-m*2)
-    ctx.moveTo(x+m, y)
-    ctx.lineTo(x-m*0.5, y-m*2)
+    ctx.moveTo(x - m, y)
+    ctx.lineTo(x + m * 0.5, y - m * 2)
+    ctx.moveTo(x + m, y)
+    ctx.lineTo(x - m * 0.5, y - m * 2)
     ctx.closePath()
 
     ctx.stroke()
 
     ctx.fillStyle = '#3d3d3d'
-    ctx.strokeStyle = "black"
+    ctx.strokeStyle = 'black'
     ctx.lineWidth = 1
 
     ctx.beginPath()
-    ctx.moveTo(x-m*1.25, y-m*2)
-    ctx.lineTo(x+m*1.25, y-m*2)
-    ctx.lineTo(x+m*1.5, y-m*3)
-    ctx.lineTo(x-m*1.5, y-m*3)
-    ctx.lineTo(x-m*1.25, y-m*2)
-    ctx.moveTo(x-m*1.75, y-m*4)
-    ctx.lineTo(x+m*1.75, y-m*4)
-    ctx.lineTo(x+m*1.5, y-m*3.75)
-    ctx.lineTo(x-m*1.5, y-m*3.75)
-    ctx.lineTo(x-m*1.75, y-m*4)
+    ctx.moveTo(x - m * 1.25, y - m * 2)
+    ctx.lineTo(x + m * 1.25, y - m * 2)
+    ctx.lineTo(x + m * 1.5, y - m * 3)
+    ctx.lineTo(x - m * 1.5, y - m * 3)
+    ctx.lineTo(x - m * 1.25, y - m * 2)
+    ctx.moveTo(x - m * 1.75, y - m * 4)
+    ctx.lineTo(x + m * 1.75, y - m * 4)
+    ctx.lineTo(x + m * 1.5, y - m * 3.75)
+    ctx.lineTo(x - m * 1.5, y - m * 3.75)
+    ctx.lineTo(x - m * 1.75, y - m * 4)
     ctx.closePath()
 
     ctx.fill()
     ctx.stroke()
-
   }
 }
 
@@ -263,16 +262,16 @@ const simplex = new SimplexNoise()
 let krat = 20
 
 // biomes
-let T = {}
+const T = {}
 
 // objects
-let O = {}
+const O = {}
 
-//buildings
-let B = {}
+// buildings
+const B = {}
 
 // explored terrain
-let E = {}
+const E = {}
 
 const basePosition = { x: 0, y: 0 }
 
@@ -305,7 +304,7 @@ const generationLogics = (x) => {
 
     if (x * 2 + 1 >= 1.25 && x * 2 + 1 < 2 && Math.floor((x * 2 + 1) * 10000) % 3 === 0) {
       R.O = 1 // forest
-    }else{
+    } else {
       R.O = 0
     }
   } else {
@@ -387,9 +386,9 @@ while (true) {
 
 explore(basePosition.x, basePosition.y, 2)
 
-let focus = { x: basePosition.x, y: basePosition.y - 1 }
-let cursor = { x: "nope", y: "nope" }
-let scrollingOffset = { x: 0, y: 0 }
+const focus = { x: basePosition.x, y: basePosition.y - 1 }
+let cursor = { x: 'nope', y: 'nope' }
+const scrollingOffset = { x: 0, y: 0 }
 
 let _W = window.innerWidth
 let _H = window.innerHeight
@@ -403,24 +402,23 @@ let mouseX, mouseY
 let a = _H / krat * 2
 
 let wood = 300
-let woodLimit = 500
+const woodLimit = 500
 let stone = 300
-let stoneLimit = 500
+const stoneLimit = 500
 
 let stoneIncreasing = 0
-let stonePitPrice = {wood:20, stone:30}
-let observationTowerPrice = {wood:50, stone:50}
+const stonePitPrice = { wood: 20, stone: 30 }
+const observationTowerPrice = { wood: 50, stone: 50 }
 
 let time = Date.now()
-let lastTime = Date.now()
-
+// const lastTime = Date.now()
 
 const loop = (tick) => {
   window.requestAnimationFrame(loop)
   time = Date.now()
 
-  if(time%100<=20){
-    stone = Math.min(stoneLimit, stone+stoneIncreasing)
+  if (time % 100 <= 20) {
+    stone = Math.min(stoneLimit, stone + stoneIncreasing)
   }
 
   _W = window.innerWidth
@@ -433,58 +431,57 @@ const loop = (tick) => {
   c.width = _W
   c.height = _H
 
-  
-  if(toggleShop === 1){
-    //document.getElementById("stonePit").innerHTML = "<h3>Stone Pit</h3></br>";
-    //shop gui
+  if (toggleShop === 1) {
+    // document.getElementById("stonePit").innerHTML = "<h3>Stone Pit</h3></br>";
+    // shop gui
     // clear screen
     ctx.fillStyle = '#699129'
     ctx.fillRect(0, 0, _W, _H)
-    
-    ctx.roundRect(20, 20, _W-40, _H-40, 20)
+
+    ctx.roundRect(20, 20, _W - 40, _H - 40, 20)
     ctx.fillStyle = '#78a62e'
     ctx.fill()
 
-    //wood storage
-    ctx.roundRect(_W-230, 30, wood/woodLimit*200, 30, 10)
-    ctx.fillStyle = "#9c772d"
+    // wood storage
+    ctx.roundRect(_W - 230, 30, wood / woodLimit * 200, 30, 10)
+    ctx.fillStyle = '#9c772d'
     ctx.fill()
-    ctx.roundRect(_W-230, 30, 200, 30, 10) 
+    ctx.roundRect(_W - 230, 30, 200, 30, 10)
     ctx.lineWidth = 2
     ctx.stroke()
-    drawObject(_W-215, 50, 25, 1)
-    //stone storage
-    ctx.roundRect(_W-440, 30, stone/stoneLimit*200, 30, 10)
-    ctx.fillStyle = "#525252"
+    drawObject(_W - 215, 50, 25, 1)
+    // stone storage
+    ctx.roundRect(_W - 440, 30, stone / stoneLimit * 200, 30, 10)
+    ctx.fillStyle = '#525252'
     ctx.fill()
-    ctx.roundRect(_W-440, 30, 200, 30, 10) 
+    ctx.roundRect(_W - 440, 30, 200, 30, 10)
     ctx.lineWidth = 2
     ctx.stroke()
 
-    document.getElementById("home").style.display = "none";
-    document.getElementById("stonePit").style.display = "block";
-    document.getElementById("observationTower").style.display = "block";
-  }else if(toggleShop == 0){
-    document.getElementById("home").style.display = "block";
-    document.getElementById("stonePit").style.display = "none";
-    document.getElementById("observationTower").style.display = "none";
+    document.getElementById('home').style.display = 'none'
+    document.getElementById('stonePit').style.display = 'block'
+    document.getElementById('observationTower').style.display = 'block'
+  } else if (toggleShop === 0) {
+    document.getElementById('home').style.display = 'block'
+    document.getElementById('stonePit').style.display = 'none'
+    document.getElementById('observationTower').style.display = 'none'
     // clear screen
     ctx.fillStyle = '#0000FF'
     ctx.fillRect(0, 0, _W, _H)
     // render Tarrain
-    for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3)+1; i++) {
-      for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(Math.max(_W, _H)/Math.min(_W, _H)*krat/3)+1; j++) {
+    for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3) + 1; i++) {
+      for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3) + 1; j++) {
         if (Clicked && checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, clickX, clickY)) {
-          if(cursor.x === i && cursor.y === j){
-            cursor = {x: "nope", y: "nope"}
-          }else{
+          if (cursor.x === i && cursor.y === j) {
+            cursor = { x: 'nope', y: 'nope' }
+          } else {
             cursor.x = i
             cursor.y = j
           }
           Clicked = false
         }
 
-        if(offsetW + a * hexcoords(i, j).x + a > 0 && offsetH + a * hexcoords(i, j).y + a > 0 && offsetW + a * hexcoords(i, j).x - a < _W && offsetH + a * hexcoords(i, j).y - a < _H){
+        if (offsetW + a * hexcoords(i, j).x + a > 0 && offsetH + a * hexcoords(i, j).y + a > 0 && offsetW + a * hexcoords(i, j).x - a < _W && offsetH + a * hexcoords(i, j).y - a < _H) {
           if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
             generateCell(i, j)
           }
@@ -492,7 +489,6 @@ const loop = (tick) => {
             drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, T[strcoords(i, j)])
             drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
             drawBuilding(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, B[strcoords(i, j)])
-
           } else {
             if (T[strcoords(i, j)] <= 0) {
               drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
@@ -501,58 +497,66 @@ const loop = (tick) => {
             }
           }
         }
-        if(placing !== 0){
-          if(checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, mouseX, mouseY)){
+        if (placing !== 0) {
+          if (checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, mouseX, mouseY)) {
             cursor.x = i
             cursor.y = j
           }
         }
       }
     }
-    if(offsetW + a * hexcoords(cursor.x, cursor.y).x + a < 0 || offsetW + a * hexcoords(cursor.x, cursor.y).x - a > _W || offsetH + a * hexcoords(cursor.x, cursor.y).y + a/2 < 0 || offsetH + a * hexcoords(cursor.x, cursor.y).y - a > _H){
-      cursor = {x: "nope", y: "nope"}
+    if (offsetW + a * hexcoords(cursor.x, cursor.y).x + a < 0 || offsetW + a * hexcoords(cursor.x, cursor.y).x - a > _W || offsetH + a * hexcoords(cursor.x, cursor.y).y + a / 2 < 0 || offsetH + a * hexcoords(cursor.x, cursor.y).y - a > _H) {
+      cursor = { x: 'nope', y: 'nope' }
     }
 
-    if(placing === 0){
-      if(cursor.x !== "nope" && cursor.y !== "nope"){
-        //draw cursor
+    if (placing === 0) {
+      if (cursor.x !== 'nope' && cursor.y !== 'nope') {
+        // draw cursor
         drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
-        
-        //cell info
-        ctx.roundRect(_W*0.99-200, _H*0.03 + 60, 200, _H*0.3, 10);
-        ctx.fillStyle = "#a6935a"
+
+        // cell info
+        ctx.roundRect(_W * 0.99 - 200, _H * 0.03 + 60, 200, _H * 0.3, 10)
+        ctx.fillStyle = '#a6935a'
         ctx.fill()
-        ctx.strokeStyle = "black"
+        ctx.strokeStyle = 'black'
         ctx.lineWidth = 2
         ctx.stroke()
 
         ctx.lineWidth = 1
-        drawObject(_W*0.99-100, _H*0.06 + 60, _H*0.04, O[strcoords(cursor.x, cursor.y)])
+        drawObject(_W * 0.99 - 100, _H * 0.06 + 60, _H * 0.04, O[strcoords(cursor.x, cursor.y)])
       }
-    }else{
-      //draw cursor
-      if(Math.floor(time)%800<700){
-        if(E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] == 1 || T[strcoords(cursor.x, cursor.y)] == 2) && O[strcoords(cursor.x, cursor.y)] === 0){
-          drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
-        }else{
-          drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+    } else {
+      // draw cursor
+      if (Math.floor(time) % 800 < 700) {
+        if(placing === 1){
+          if (E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && O[strcoords(cursor.x, cursor.y)] === 0) {
+            drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+          } else {
+            drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+          }
+        }else if(placing === 2){
+          if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && O[strcoords(cursor.x, cursor.y)] === 0) {
+            drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+          } else {
+            drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+          }
         }
       }
     }
-    //wood storage
-    ctx.strokeStyle = "black"
-    ctx.roundRect(_W*0.99-200, _H*0.01, wood/woodLimit*200, 30, 10)
-    ctx.fillStyle = "#9c772d"
+    // wood storage
+    ctx.strokeStyle = 'black'
+    ctx.roundRect(_W * 0.99 - 200, _H * 0.01, wood / woodLimit * 200, 30, 10)
+    ctx.fillStyle = '#9c772d'
     ctx.fill()
-    ctx.roundRect(_W*0.99-200, _H*0.01, 200, 30, 10) 
+    ctx.roundRect(_W * 0.99 - 200, _H * 0.01, 200, 30, 10)
     ctx.lineWidth = 2
     ctx.stroke()
-    drawObject(_W*0.99-185, _H*0.01 + 20, 25, 1)
-    //stone storage
-    ctx.roundRect(_W*0.99-200, _H*0.02 + 30, stone/stoneLimit*200, 30, 10)
-    ctx.fillStyle = "#525252"
+    drawObject(_W * 0.99 - 185, _H * 0.01 + 20, 25, 1)
+    // stone storage
+    ctx.roundRect(_W * 0.99 - 200, _H * 0.02 + 30, stone / stoneLimit * 200, 30, 10)
+    ctx.fillStyle = '#525252'
     ctx.fill()
-    ctx.roundRect(_W*0.99-200, _H*0.02 + 30, 200, 30, 10) 
+    ctx.roundRect(_W * 0.99 - 200, _H * 0.02 + 30, 200, 30, 10)
     ctx.lineWidth = 2
     ctx.stroke()
 
@@ -577,34 +581,33 @@ c.addEventListener('mousedown', e => {
     lastX = e.clientX
     lastY = e.clientY
     isDragging = true
-  }else if(placing !== 0){
-    //placed building
-    if(E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] == 1 || T[strcoords(cursor.x, cursor.y)] == 2) && O[strcoords(cursor.x, cursor.y)] === 0){
-      if(placing === 1){
-        if(stone >= stonePitPrice.stone && wood >= stonePitPrice.wood){
+  } else if (placing !== 0) {
+    if (placing === 1) {
+      if (E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && O[strcoords(cursor.x, cursor.y)] === 0) {      
+        if (stone >= stonePitPrice.stone && wood >= stonePitPrice.wood) {
           stoneIncreasing += 0.1
           stone -= stonePitPrice.stone
           wood -= stonePitPrice.wood
           explore(cursor.x, cursor.y, 1)
           B[strcoords(cursor.x, cursor.y)] = placing
         }
-      }else if(placing === 2){
-        if(stone >= observationTowerPrice.stone && wood >= observationTowerPrice.wood){
+      } 
+      placing = 0
+    }else if (placing === 2) {
+      if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && O[strcoords(cursor.x, cursor.y)] === 0) {      
+        if (stone >= observationTowerPrice.stone && wood >= observationTowerPrice.wood) {
           stone -= observationTowerPrice.stone
           wood -= observationTowerPrice.wood
           explore(cursor.x, cursor.y, 3)
           B[strcoords(cursor.x, cursor.y)] = placing
         }
       }
-      placing = 0
     }
-  }else if (e.button === 0 && !isDragging) {
+  } else if (e.button === 0 && !isDragging) {
     Clicked = true
     clickX = e.clientX
     clickY = e.clientY
   }
-
-
 })
 document.addEventListener('mousemove', e => {
   mouseX = e.clientX
@@ -638,36 +641,40 @@ document.addEventListener('contextmenu', e => {
 
 homeButton.addEventListener('mousedown', e => {
   if (!(scrollingOffset.x === 0 && scrollingOffset.y === 0)) {
-    const tween = new TWEEN.Tween(scrollingOffset)
+    new TWEEN.Tween(scrollingOffset)
       .to({ x: 0, y: 0 }, 1000)
       .easing(TWEEN.Easing.Exponential.InOut)
       .onUpdate(function () {
-        const offsetH = _H / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).y - a * 3 / 4
-        const offsetW = _W / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).x - a
+        offsetH = _H / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).y - a * 3 / 4
+        offsetW = _W / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).x - a
       })
       .start()
-    setTimeout(function(){
+    setTimeout(function () {
       cursor.x = basePosition.x
       cursor.y = basePosition.y
-    }, 1000);
-  }else{
+    }, 1000)
+  } else {
     cursor.x = basePosition.x
     cursor.y = basePosition.y
   }
 })
 
-shopButton.addEventListener('click', e =>{
-  toggleShop = (toggleShop + 1)%2
+shopButton.addEventListener('click', e => {
+  toggleShop = (toggleShop + 1) % 2
 })
 
-stonePitButton.addEventListener('click', e=>{
-  toggleShop = 0
-  placing = 1
+stonePitButton.addEventListener('click', e => {
+  if (stone >= stonePitPrice.stone && wood >= stonePitPrice.wood) {
+    toggleShop = 0
+    placing = 1
+  }
 })
 
-observationTowerButton.addEventListener('click', e=>{
-  toggleShop = 0
-  placing = 2
+observationTowerButton.addEventListener('click', e => {
+  if (stone >= observationTowerPrice.stone && wood >= observationTowerPrice.wood) {
+    toggleShop = 0
+    placing = 2
+  }
 })
 
 loop()
