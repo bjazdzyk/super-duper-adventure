@@ -9,6 +9,7 @@ const homeButton = document.getElementById('home')
 const shopButton = document.getElementById('shop')
 const stonePitButton = document.getElementById('stonePit')
 const observationTowerButton = document.getElementById('observationTower')
+const sawmillButton = document.getElementById("sawmill")
 const ctx = c.getContext('2d')
 
 window.CanvasRenderingContext2D.prototype.roundRect = (x, y, width, height, radius) => {
@@ -61,15 +62,14 @@ const drawHexagon = (x, y, s, biome, type = 'normal') => {
 }
 const drawObject = (x, y, s, type) => {
   if (type === 1) { // forest
-    s /= 3
     ctx.fillStyle = '#4f2602'
     ctx.strokeStyle = 'black'
-    ctx.fillRect(x - s / 2, y - s / 2, s, s)
-    ctx.strokeRect(x - s / 2, y - s / 2, s, s)
+    ctx.fillRect(x - s / 6, y - s / 6, s/3, s/3)
+    ctx.strokeRect(x - s / 6, y - s / 6, s/3, s/3)
 
     ctx.fillStyle = '#248016'
     ctx.beginPath()
-    ctx.arc(x, y - s * 3 / 4, s, 0, 2 * Math.PI)
+    ctx.arc(x, y - s * 3 / 12, s/3, 0, 2 * Math.PI)
     ctx.fill()
     ctx.stroke()
   } else if (type === 2) { // main base
@@ -215,6 +215,87 @@ const drawBuilding = (x, y, s, type) => {
     ctx.lineTo(x + m * 1.5, y - m * 3.75)
     ctx.lineTo(x - m * 1.5, y - m * 3.75)
     ctx.lineTo(x - m * 1.75, y - m * 4)
+    ctx.closePath()
+
+    ctx.fill()
+    ctx.stroke()
+  }else if(type === 3){
+    const m = s/15
+    const trunkOffset = { x: 0, y:0}
+    ctx.strokeStyle = "black"
+    ctx.fillStyle = "#66471d"
+    ctx.lineWidth = 1
+
+    ctx.beginPath()
+    ctx.moveTo(trunkOffset.x + x-m*3, y)
+    ctx.lineTo(trunkOffset.x + x-m, y-m*2)
+    ctx.lineTo(trunkOffset.x + x-m, y-m*4)
+    ctx.lineTo(trunkOffset.x + x+m, y-m*4)
+    ctx.lineTo(trunkOffset.x + x+m*3, y-m*2)
+    ctx.lineTo(trunkOffset.x + x+m*3, y)
+    ctx.lineTo(trunkOffset.x + x-m*3, y)
+    ctx.closePath()
+
+    ctx.fill()
+    ctx.stroke()
+
+    ctx.fillStyle = "#c4a458"
+    
+    ctx.beginPath()
+    ctx.moveTo(x-m*6,y-m)
+    ctx.arc(x-m*5, y-m, m, 0, Math.PI)
+    ctx.moveTo(x+m*4,y-m)
+    ctx.arc(x+m*5, y-m, m, 0, Math.PI)
+    ctx.closePath()
+    
+    ctx.fill()
+    ctx.stroke()
+
+    ctx.fillStyle = "#6e4f10"
+
+    ctx.beginPath()
+    ctx.moveTo(x-m*4, y-m)
+    ctx.lineTo(x-m*3, y-m)
+    ctx.arc(x-m*4, y-m, m, 0, 0.5 * Math.PI)
+    ctx.lineTo(x-m*5, y)
+    ctx.arc(x-m*5, y-m, m, 0.5*Math.PI, 0, true)
+
+    ctx.moveTo(x+m*6, y-m)
+    ctx.lineTo(x+m*7, y-m)
+    ctx.arc(x+m*6, y-m, m, 0, 0.5 * Math.PI)
+    ctx.lineTo(x+m*5, y)
+    ctx.arc(x+m*5, y-m, m, 0.5*Math.PI, 0, true)
+    ctx.closePath()
+
+    ctx.fill()
+    ctx.stroke()
+
+    ctx.fillStyle = "#6e6e6e"
+
+    ctx.beginPath()
+    ctx.moveTo(x, y-m*4)
+    ctx.lineTo(x+m, y-m*5)
+    ctx.lineTo(x+m, y-m*5.5)
+    ctx.lineTo(x, y-m*6)
+    ctx.lineTo(x-m, y-m*5)
+    ctx.lineTo(x-m*0.5, y-m*4)
+
+    ctx.moveTo(x-m*0.5, y-m*6.5)
+    ctx.lineTo(x-m*1.5, y-m*6.5)
+    ctx.lineTo(x-m*1.5, y-m*5.5)
+    ctx.closePath()
+
+    ctx.fill()
+    ctx.stroke()
+
+    ctx.fillStyle = "#6e4f10"
+
+    ctx.beginPath()
+    ctx.moveTo(x-m*1.5, y-m*4.5)
+    ctx.lineTo(x-m*1.75, y-m*5.25)
+    ctx.lineTo(x+m*2.5, y-m*9.5)
+    ctx.lineTo(x+m*3, y-m*9)
+    ctx.lineTo(x-m*1.5, y-m*4.5)
     ctx.closePath()
 
     ctx.fill()
@@ -407,8 +488,10 @@ let stone = 300
 const stoneLimit = 500
 
 let stoneIncreasing = 0
-const stonePitPrice = { wood: 20, stone: 30 }
-const observationTowerPrice = { wood: 50, stone: 50 }
+let woodIncreasing = 0
+const stonePitPrice = { wood: 20, stone: 40 }
+const observationTowerPrice = { wood: 100, stone: 80 }
+const sawmillPrice = { wood: 20, stone: 20 }
 
 let time = Date.now()
 // const lastTime = Date.now()
@@ -419,6 +502,7 @@ const loop = (tick) => {
 
   if (time % 100 <= 20) {
     stone = Math.min(stoneLimit, stone + stoneIncreasing)
+    wood = Math.min(woodLimit, wood + woodIncreasing)
   }
 
   _W = window.innerWidth
@@ -459,12 +543,14 @@ const loop = (tick) => {
     ctx.stroke()
 
     document.getElementById('home').style.display = 'none'
-    document.getElementById('stonePit').style.display = 'block'
-    document.getElementById('observationTower').style.display = 'block'
+    stonePitButton.style.display = 'block'
+    observationTowerButton.style.display = 'block'
+    sawmillButton.style.display = 'block'
   } else if (toggleShop === 0) {
     document.getElementById('home').style.display = 'block'
-    document.getElementById('stonePit').style.display = 'none'
-    document.getElementById('observationTower').style.display = 'none'
+    stonePitButton.style.display = 'none'
+    observationTowerButton.style.display = 'none'
+    sawmillButton.style.display = 'none'
     // clear screen
     ctx.fillStyle = '#0000FF'
     ctx.fillRect(0, 0, _W, _H)
@@ -497,6 +583,7 @@ const loop = (tick) => {
             }
           }
         }
+        //placing cursor while moving
         if (placing !== 0) {
           if (checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, mouseX, mouseY)) {
             cursor.x = i
@@ -526,7 +613,7 @@ const loop = (tick) => {
         drawObject(_W * 0.99 - 100, _H * 0.06 + 60, _H * 0.04, O[strcoords(cursor.x, cursor.y)])
       }
     } else {
-      // draw cursor
+      // draw cursor (green/red)
       if (Math.floor(time) % 800 < 700) {
         if(placing === 1){
           if (E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && O[strcoords(cursor.x, cursor.y)] === 0) {
@@ -536,6 +623,12 @@ const loop = (tick) => {
           }
         }else if(placing === 2){
           if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && O[strcoords(cursor.x, cursor.y)] === 0) {
+            drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+          } else {
+            drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+          }
+        }else if(placing === 3){
+          if (E[strcoords(cursor.x, cursor.y)] && O[strcoords(cursor.x, cursor.y)] === 1) {
             drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
           } else {
             drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
@@ -592,7 +685,6 @@ c.addEventListener('mousedown', e => {
           B[strcoords(cursor.x, cursor.y)] = placing
         }
       } 
-      placing = 0
     }else if (placing === 2) {
       if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && O[strcoords(cursor.x, cursor.y)] === 0) {      
         if (stone >= observationTowerPrice.stone && wood >= observationTowerPrice.wood) {
@@ -602,7 +694,19 @@ c.addEventListener('mousedown', e => {
           B[strcoords(cursor.x, cursor.y)] = placing
         }
       }
+    }else if(placing === 3){
+      if(E[strcoords(cursor.x, cursor.y)] && O[strcoords(cursor.x, cursor.y)] === 1){
+        if(stone >= sawmillPrice.stone && wood >= sawmillPrice.wood){
+          woodIncreasing += 0.1
+          stone -= sawmillPrice.stone
+          wood -= sawmillPrice.wood
+          explore(cursor.x, cursor.y, 1)
+          B[strcoords(cursor.x, cursor.y)] = placing
+          O[strcoords(cursor.x, cursor.y)] = 0
+        }
+      }
     }
+    placing = 0
   } else if (e.button === 0 && !isDragging) {
     Clicked = true
     clickX = e.clientX
@@ -674,6 +778,13 @@ observationTowerButton.addEventListener('click', e => {
   if (stone >= observationTowerPrice.stone && wood >= observationTowerPrice.wood) {
     toggleShop = 0
     placing = 2
+  }
+})
+
+sawmillButton.addEventListener('click', e => {
+  if (stone >= sawmillPrice.stone && wood >= sawmillPrice.wood) {
+    toggleShop = 0
+    placing = 3
   }
 })
 
