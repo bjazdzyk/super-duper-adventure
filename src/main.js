@@ -10,6 +10,7 @@ const shopButton = document.getElementById('shop')
 const stonePitButton = document.getElementById('stonePit')
 const observationTowerButton = document.getElementById('observationTower')
 const sawmillButton = document.getElementById("sawmill")
+const seaportButton = document.getElementById("seaport")
 const ctx = c.getContext('2d')
 
 window.CanvasRenderingContext2D.prototype.roundRect = (x, y, width, height, radius) => {
@@ -221,19 +222,18 @@ const drawBuilding = (x, y, s, type) => {
     ctx.stroke()
   }else if(type === 3){
     const m = s/15
-    const trunkOffset = { x: 0, y:0}
     ctx.strokeStyle = "black"
     ctx.fillStyle = "#66471d"
     ctx.lineWidth = 1
 
     ctx.beginPath()
-    ctx.moveTo(trunkOffset.x + x-m*3, y)
-    ctx.lineTo(trunkOffset.x + x-m, y-m*2)
-    ctx.lineTo(trunkOffset.x + x-m, y-m*4)
-    ctx.lineTo(trunkOffset.x + x+m, y-m*4)
-    ctx.lineTo(trunkOffset.x + x+m*3, y-m*2)
-    ctx.lineTo(trunkOffset.x + x+m*3, y)
-    ctx.lineTo(trunkOffset.x + x-m*3, y)
+    ctx.moveTo(x-m*3, y)
+    ctx.lineTo(x-m, y-m*2)
+    ctx.lineTo(x-m, y-m*4)
+    ctx.lineTo(x+m, y-m*4)
+    ctx.lineTo(x+m*3, y-m*2)
+    ctx.lineTo(x+m*3, y)
+    ctx.lineTo(x-m*3, y)
     ctx.closePath()
 
     ctx.fill()
@@ -299,6 +299,32 @@ const drawBuilding = (x, y, s, type) => {
     ctx.closePath()
 
     ctx.fill()
+    ctx.stroke()
+  }else if(type === 4){
+    const m = s/10
+    const cellOffsetY = s/8
+    ctx.strokeStyle = "black"
+    ctx.lineWidth = m/2
+
+    y -= cellOffsetY
+
+    ctx.beginPath()
+    ctx.arc(x, y-m*2, m, 0, 2*Math.PI)
+    ctx.moveTo(x, y-m)
+    ctx.lineTo(x, y+m*3)
+    ctx.moveTo(x-m, y)
+    ctx.lineTo(x+m, y)
+    ctx.moveTo(x-m, y+m)
+    ctx.lineTo(x-m*2, y+m)
+    ctx.moveTo(x+m, y+m)
+    ctx.lineTo(x+m*2, y+m)
+    ctx.moveTo(x+m*2, y+m)
+    ctx.closePath()
+    
+    ctx.stroke()
+
+    ctx.beginPath()
+    ctx.arc(x, y+m*0.9, m*2, 0, 1*Math.PI)
     ctx.stroke()
   }
 }
@@ -428,7 +454,7 @@ const nearBiomes = (x, y, biome, radius) => {
   let count = 0
   for (let i = x - radius; i <= x + radius; i++) {
     for (let j = y - radius; j <= y + radius; j++) {
-      if (!(i === x - radius && j === y - radius) && !(i === x + radius && y + radius) && !(i === x && j === y)) {
+      if (!(i === x - radius && j === y - radius) && !(i === x + radius && j === y + radius) && !(i === x && j === y)) {
         if (T[strcoords(i, j)] === undefined) {
           generateCell(i, j)
         }
@@ -438,15 +464,23 @@ const nearBiomes = (x, y, biome, radius) => {
       }
     }
   }
+  console.log("")
   return count
 }
 
-const explore = (x, y, radius, ex = { T: 'every', O: 'every' }) => {
+const explore = (x, y, radius, how = "normal") => {
   for (let i = x - radius; i <= x + radius; i++) {
     for (let j = y - radius; j <= y + radius; j++) {
       if (!(i === x - radius && j === y - radius) && !(i === x + radius && j === y + radius) && !(i === x + radius && j === y + radius)) {
-        if (ex.T === 'every' && ex.O === 'every') {
+        if (T[strcoords(i, j)] === undefined) {
+          generateCell(i, j)
+        }
+        if(how === "normal"){
           E[strcoords(i, j)] = 1
+        }else if(how === "seaport"){
+          if(T[strcoords(i, j)] === 0){
+            E[strcoords(i, j)] = 1
+          }
         }
       }
     }
@@ -489,9 +523,10 @@ const stoneLimit = 500
 
 let stoneIncreasing = 0
 let woodIncreasing = 0
-const stonePitPrice = { wood: 20, stone: 40 }
-const observationTowerPrice = { wood: 100, stone: 80 }
-const sawmillPrice = { wood: 20, stone: 20 }
+const stonePitPrice = { wood: 30, stone: 40 }
+const observationTowerPrice = { wood: 100, stone: 120 }
+const sawmillPrice = { wood: 20, stone: 30 }
+const seaportPrice = { wood: 150, stone: 200 }
 
 let time = Date.now()
 // const lastTime = Date.now()
@@ -545,22 +580,26 @@ const loop = (tick) => {
     stonePitButton.style.display = 'block'
     observationTowerButton.style.display = 'block'
     sawmillButton.style.display = 'block'
+    seaportButton.style.display = 'block'
 
     const shopButtonWidth = parseInt(window.getComputedStyle(stonePitButton).width)
     const shopButtonHeight = parseInt(window.getComputedStyle(stonePitButton).height)
     const shopButtonY = parseInt(window.getComputedStyle(stonePitButton).top)
     const stonePitX = parseInt(window.getComputedStyle(stonePitButton).left)
     const sawmillX = parseInt(window.getComputedStyle(sawmillButton).left)
+    const seaportX = parseInt(window.getComputedStyle(seaportButton).left)
     const observationTowerX = parseInt(window.getComputedStyle(observationTowerButton).left)
     drawBuilding(stonePitX + shopButtonWidth/2, shopButtonY + shopButtonHeight*2 + 10, shopButtonHeight*4/3, 1)
     drawBuilding(sawmillX + shopButtonWidth/2, shopButtonY + shopButtonHeight*2 + 10, shopButtonHeight*4/3, 3)
     drawBuilding(observationTowerX + shopButtonWidth/2, shopButtonY + shopButtonHeight*2 + 10, shopButtonHeight*4/3, 2)
+    drawBuilding(seaportX + shopButtonWidth/2, shopButtonY + shopButtonHeight*1.75 + 10, shopButtonHeight*4/3, 4)
 
   } else if (toggleShop === 0) {
     document.getElementById('home').style.display = 'block'
     stonePitButton.style.display = 'none'
     observationTowerButton.style.display = 'none'
     sawmillButton.style.display = 'none'
+    seaportButton.style.display = 'none'
     // clear screen
     ctx.fillStyle = '#0000FF'
     ctx.fillRect(0, 0, _W, _H)
@@ -643,6 +682,12 @@ const loop = (tick) => {
           } else {
             drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
           }
+        }else if(placing === 4){
+          if (E[strcoords(cursor.x, cursor.y)] && nearBiomes(cursor.x, cursor.y, 0, 1) > 0 && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0) {
+            drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+          } else {
+            drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+          }
         }
       }
     }
@@ -713,6 +758,16 @@ c.addEventListener('mousedown', e => {
           explore(cursor.x, cursor.y, 1)
           B[strcoords(cursor.x, cursor.y)] = placing
           O[strcoords(cursor.x, cursor.y)] = 0
+        }
+      }
+    }else if(placing === 4){
+      if(E[strcoords(cursor.x, cursor.y)] && nearBiomes(cursor.x, cursor.y, 0, 1) > 0 && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0){
+        if (stone >= seaportPrice.stone && wood >= seaportPrice.wood) {
+          stone -= seaportPrice.stone
+          wood -= seaportPrice.wood
+          explore(cursor.x, cursor.y, 5, "seaport")
+          explore(cursor.x, cursor.y, 1)
+          B[strcoords(cursor.x, cursor.y)] = placing
         }
       }
     }
@@ -795,6 +850,13 @@ sawmillButton.addEventListener('click', e => {
   if (stone >= sawmillPrice.stone && wood >= sawmillPrice.wood) {
     toggleShop = 0
     placing = 3
+  }
+})
+
+seaportButton.addEventListener('click', e => {
+  if (stone >= seaportPrice.stone && wood >= seaportPrice.wood) {
+    toggleShop = 0
+    placing = 4
   }
 })
 
