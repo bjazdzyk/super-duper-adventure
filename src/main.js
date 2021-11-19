@@ -614,15 +614,16 @@ const sawmillPrice = { wood: 20, stone: 30 }
 const seaportPrice = { wood: 150, stone: 200 }
 
 let time = Date.now()
-// const lastTime = Date.now()
+let lastTime = Date.now()
 
 const loop = (tick) => {
   window.requestAnimationFrame(loop)
   time = Date.now()
 
-  if (time % 100 <= 20) {
+  if (time - lastTime > 200) {
     stone = Math.min(stoneLimit, stone + stoneIncreasing)
     wood = Math.min(woodLimit, wood + woodIncreasing)
+    lastTime = time
   }
 
   _W = window.innerWidth
@@ -659,6 +660,9 @@ const loop = (tick) => {
     ctx.lineWidth = 2
     ctx.stroke()
     drawObject(_W - 215, 50, 25, 1)
+    ctx.font = "15px Courier";
+    ctx.fillStyle = "black"
+    ctx.fillText(Math.floor(wood.toString()), _W - 200, 50);
     // stone storage
     ctx.beginPath()
     ctx.roundRect(_W - 440, 30, stone / stoneLimit * 200, 30, 10)
@@ -670,6 +674,9 @@ const loop = (tick) => {
     ctx.closePath()
     ctx.lineWidth = 2
     ctx.stroke()
+    ctx.font = "15px Courier";
+    ctx.fillStyle = "black"
+    ctx.fillText(Math.floor(stone.toString()), _W - 410, 50);
 
     document.getElementById('home').style.display = 'none'
     stonePitButton.style.display = 'block'
@@ -801,6 +808,9 @@ const loop = (tick) => {
     ctx.lineWidth = 2
     ctx.stroke()
     drawObject(_W * 0.99 - 185, _H * 0.01 + 20, 25, 1)
+    ctx.font = "15px Courier";
+    ctx.fillStyle = "black"
+    ctx.fillText(Math.floor(wood.toString()), _W * 0.99 - 170, _H * 0.01 + 20);
     // stone storage
     ctx.beginPath()
     ctx.roundRect(_W * 0.99 - 200, _H * 0.02 + 30, stone / stoneLimit * 200, 30, 10)
@@ -812,6 +822,9 @@ const loop = (tick) => {
     ctx.closePath()
     ctx.lineWidth = 2
     ctx.stroke()
+    ctx.font = "15px Courier";
+    ctx.fillStyle = "black"
+    ctx.fillText(Math.floor(stone.toString()), _W * 0.99 - 170, _H * 0.02 + 50);
 
     TWEEN.update(tick)
   }
