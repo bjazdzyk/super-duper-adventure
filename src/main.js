@@ -16,13 +16,11 @@ const ctx = c.getContext('2d')
 window.CanvasRenderingContext2D.prototype.roundRect = (x, y, width, height, radius) => {
   if (width < 2 * radius) radius = width / 2
   if (height < 2 * radius) radius = height / 2
-  ctx.beginPath()
   ctx.moveTo(x + radius, y)
   ctx.arcTo(x + width, y, x + width, y + height, radius)
   ctx.arcTo(x + width, y + height, x, y + height, radius)
   ctx.arcTo(x, y + height, x, y, radius)
   ctx.arcTo(x, y, x + width, y, radius)
-  ctx.closePath()
   return ctx
 }
 
@@ -329,6 +327,93 @@ const drawBuilding = (x, y, s, type) => {
   }
 }
 
+const drawGoblin =(x, y, s, goblinInfo = {color: "#1e526e", holdding: "nope"})=>{
+  const m = s/10
+
+  ctx.lineWidth = 1
+  ctx.strokeStyle = "black"
+
+  ctx.fillStyle = '#2e7521'
+  ctx.beginPath()
+  ctx.moveTo(x+m*2, y-m*8)
+  ctx.lineTo(x+m*4, y-m*9)
+  ctx.arc(x+m*1.5, y-m*9, m*3, 0, 0.5*Math.PI)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+
+  ctx.beginPath()
+  ctx.moveTo(x-m*2, y-m*8)
+  ctx.lineTo(x-m*4, y-m*9)
+  ctx.arc(x-m*1.5, y-m*9, m*3, Math.PI, 0.5*Math.PI, true)
+  ctx.moveTo(x+m*3, y-m*2.5)
+  ctx.arc(x+m*2.5, y-m*2.5, m/2, 0, 2*Math.PI)
+  ctx.moveTo(x-m*2, y-m*2.5)
+  ctx.arc(x-m*2.5, y-m*2.5, m/2, 0, 2*Math.PI)
+  ctx.moveTo(x-m/2, y)
+  ctx.arc(x-m, y, m/2, 0, 2*Math.PI)
+  ctx.moveTo(x+m*1.5, y)
+  ctx.arc(x+m, y, m/2, 0, 2*Math.PI)
+  ctx.moveTo(x-m*0.5, y-m*4)
+  ctx.fillRect(x-m*0.5, y-m*4, m, m*0.5)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+
+
+  ctx.fillStyle = '#30961e'
+  ctx.beginPath()
+  ctx.roundRect(x-m*3, y-m*9, m*6, m*5, m)
+  ctx.closePath()
+  ctx.stroke()
+  ctx.fill()
+  ctx.beginPath()
+  ctx.roundRect(x-m*1.75, y-m*3.5, m*3.5, m*3, m)
+  ctx.closePath()
+  ctx.stroke()
+  ctx.fill()
+
+  ctx.fillStyle = "#b5f274"
+  ctx.beginPath()
+  ctx.moveTo(x+m*0.5, y-m*6)
+  ctx.lineTo(x+m*2, y-m*7)
+  ctx.lineTo(x+m*2, y-m*6.5)
+  ctx.arc(x+m*0.5, y-m*6.5, m*1.5, 0, 0.5*Math.PI)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+
+  ctx.beginPath()
+  ctx.moveTo(x-m*0.5, y-m*6)
+  ctx.lineTo(x-m*2, y-m*7)
+  ctx.lineTo(x-m*2, y-m*6.5)
+  ctx.arc(x-m*0.5, y-m*6.5, m*1.5, Math.PI, 0.5*Math.PI, true)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+
+  ctx.fillStyle = goblinInfo.color
+  ctx.fillRect(x-m*3, y-m*8.5, m*6, m)
+  ctx.beginPath()
+  ctx.moveTo(x, y-m*5.5)
+  ctx.arc(x-m*0.5, y-m*5.5, m/2, 0, 2*Math.PI)
+  ctx.arc(x+m*0.5, y-m*5.5, m/2, Math.PI, 3*Math.PI)
+  ctx.closePath()
+  ctx.fill()
+
+  ctx.lineWidth = 1
+
+  ctx.beginPath()
+  ctx.moveTo(x-m, y-m*4.5)
+  ctx.lineTo(x, y-m*4.75)
+  ctx.lineTo(x+m, y-m*4.5)
+  ctx.closePath()
+  ctx.fill()
+  ctx.stroke()
+
+
+}
+
 const checkPointInHexagon = (x, y, s, cX, cY) => {
   if (pointWhichSide(x, y - s / 2, x + s / 2, y - s / 4, cX, cY) !== -1) { return false }
   if (pointWhichSide(x + s / 2, y - s / 4, x + s / 2, y, cX, cY) !== -1) { return false }
@@ -471,7 +556,7 @@ const nearBiomes = (x, y, biome, radius) => {
 const explore = (x, y, radius, how = "normal") => {
   for (let i = x - radius; i <= x + radius; i++) {
     for (let j = y - radius; j <= y + radius; j++) {
-      if (!(i === x - radius && j === y - radius) && !(i === x + radius && j === y + radius) && !(i === x + radius && j === y + radius)) {
+      if (!(i === x - radius && j === y - radius) && !(i === x + radius && j === y + radius)) {
         if (T[strcoords(i, j)] === undefined) {
           generateCell(i, j)
         }
@@ -556,23 +641,33 @@ const loop = (tick) => {
     ctx.fillStyle = '#699129'
     ctx.fillRect(0, 0, _W, _H)
 
-    ctx.roundRect(20, 20, _W - 40, _H - 40, 20)
     ctx.fillStyle = '#78a62e'
+    ctx.beginPath()
+    ctx.roundRect(20, 20, _W - 40, _H - 40, 20)
+    ctx.closePath()
     ctx.fill()
 
     // wood storage
+    ctx.beginPath()
     ctx.roundRect(_W - 230, 30, wood / woodLimit * 200, 30, 10)
+    ctx.closePath()
     ctx.fillStyle = '#9c772d'
     ctx.fill()
+    ctx.beginPath()
     ctx.roundRect(_W - 230, 30, 200, 30, 10)
+    ctx.closePath()
     ctx.lineWidth = 2
     ctx.stroke()
     drawObject(_W - 215, 50, 25, 1)
     // stone storage
+    ctx.beginPath()
     ctx.roundRect(_W - 440, 30, stone / stoneLimit * 200, 30, 10)
+    ctx.closePath()
     ctx.fillStyle = '#525252'
     ctx.fill()
+    ctx.beginPath()
     ctx.roundRect(_W - 440, 30, 200, 30, 10)
+    ctx.closePath()
     ctx.lineWidth = 2
     ctx.stroke()
 
@@ -651,7 +746,9 @@ const loop = (tick) => {
         drawHexagon(offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
 
         // cell info
+        ctx.beginPath()
         ctx.roundRect(_W * 0.99 - 200, _H * 0.03 + 60, 200, _H * 0.3, 10)
+        ctx.closePath()
         ctx.fillStyle = '#a6935a'
         ctx.fill()
         ctx.strokeStyle = 'black'
@@ -693,18 +790,26 @@ const loop = (tick) => {
     }
     // wood storage
     ctx.strokeStyle = 'black'
+    ctx.beginPath()
     ctx.roundRect(_W * 0.99 - 200, _H * 0.01, wood / woodLimit * 200, 30, 10)
+    ctx.closePath()
     ctx.fillStyle = '#9c772d'
     ctx.fill()
+    ctx.beginPath()
     ctx.roundRect(_W * 0.99 - 200, _H * 0.01, 200, 30, 10)
+    ctx.closePath()
     ctx.lineWidth = 2
     ctx.stroke()
     drawObject(_W * 0.99 - 185, _H * 0.01 + 20, 25, 1)
     // stone storage
+    ctx.beginPath()
     ctx.roundRect(_W * 0.99 - 200, _H * 0.02 + 30, stone / stoneLimit * 200, 30, 10)
+    ctx.closePath()
     ctx.fillStyle = '#525252'
     ctx.fill()
+    ctx.beginPath()
     ctx.roundRect(_W * 0.99 - 200, _H * 0.02 + 30, 200, 30, 10)
+    ctx.closePath()
     ctx.lineWidth = 2
     ctx.stroke()
 
