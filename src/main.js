@@ -451,33 +451,42 @@ const pointWhichSide = (x1, y1, x2, y2, x3, y3) => {
 // terrain generation
 
 const simplex = new SimplexNoise()
+const goblinCaves1 = new SimplexNoise()
+const goblinCaves2 = new SimplexNoise()
+const goblinCaves3 = new SimplexNoise()
+
 let krat = 20
 
 // biomes
-const T = {}
+let T = {}
 
 // objects
-const O = {}
+let O = {}
 
 // buildings
-const B = {}
+let B = {}
 
 // explored terrain
-const E = {}
+let E = {}
+
+// goblin caves
+let G = {}
 
 const basePosition = { x: 0, y: 0 }
 
-const getSimplex = (x, y) => {
-  return (simplex.noise2D(x / 12, y / 12))
+const getSimplex = (S, x, y) => {
+  return (S.noise2D(x / 12, y / 12))
 }
 
 const generateCell = (x, y) => {
-  T[strcoords(x, y)] = generationLogics(getSimplex(x, y)).T
+  T[strcoords(x, y)] = generationLogics(getSimplex(simplex, x, y)).T
   if (x === basePosition.x && y === basePosition.y) {
     return 2
   } else {
-    O[strcoords(x, y)] = generationLogics(getSimplex(x, y)).O
+    O[strcoords(x, y)] = generationLogics(getSimplex(simplex, x, y)).O
   }
+  G[strcoords(x, y)] = Math.floor(getSimplex(goblinCaves1, x, y)*10)*Math.floor(getSimplex(goblinCaves2, x, y)*10)*Math.floor(getSimplex(goblinCaves3, x, y)*10)
+
 }
 
 const generationLogics = (x) => {
@@ -509,8 +518,9 @@ const generationLogics = (x) => {
 const generateStartingTerrain = () => {
   for (let i = basePosition.x - Math.floor(krat / 2); i < basePosition.x + Math.floor(krat / 2); i++) {
     for (let j = basePosition.y - Math.floor(krat / 2); j < basePosition.y + Math.floor(krat / 2); j++) {
-      T[strcoords(i, j)] = generationLogics(getSimplex(i, j)).T
-      O[strcoords(i, j)] = generationLogics(getSimplex(i, j)).O
+      generateCell(i, j)
+      //T[strcoords(i, j)] = generationLogics(getSimplex(simplex, i, j)).T
+      //O[strcoords(i, j)] = generationLogics(getSimplex(simplex, i, j)).O
 
       // x*2+1  ->  1 - 3
     }
@@ -549,7 +559,6 @@ const nearBiomes = (x, y, biome, radius) => {
       }
     }
   }
-  console.log("")
   return count
 }
 
@@ -574,7 +583,7 @@ const explore = (x, y, radius, how = "normal") => {
 
 while (true) {
   const X = basePosition.x
-  const f = getSimplex(X, 0)
+  const f = getSimplex(simplex, X, 0)
   if (f * 2 + 1 >= 1.25 && f * 2 + 1 < 2 && Math.floor((f * 2 + 1) * 10000) % 3 !== 0) {
     if (nearObjects(X, 0, 1, 1) > 0 && nearBiomes(X, 0, 1, 1) > 2 && nearBiomes(X, 0, 0, 2) > 0 && nearBiomes(X, 0, 2, 2) > 0) {
       O[strcoords(basePosition.x, 0)] = 2 // main base
@@ -584,7 +593,7 @@ while (true) {
   basePosition.x++
 }
 
-explore(basePosition.x, basePosition.y, 2)
+explore(basePosition.x, basePosition.y, 50)
 
 const focus = { x: basePosition.x, y: basePosition.y - 1 }
 let cursor = { x: 'nope', y: 'nope' }
@@ -726,6 +735,10 @@ const loop = (tick) => {
             drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, T[strcoords(i, j)])
             drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
             drawBuilding(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, B[strcoords(i, j)])
+            if(G[strcoords(i, j)]%8 === 0 && G[strcoords(i, j)] >= 0){
+              drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, 'brown')
+            }
+            
           } else {
             if (T[strcoords(i, j)] <= 0) {
               drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
