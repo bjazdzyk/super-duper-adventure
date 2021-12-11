@@ -77,6 +77,8 @@ const drawObject = (x, y, s, type) => {
     ctx.strokeStyle = 'black'
     ctx.fillRect(x - s, y - s, s * 2, s)
     ctx.strokeRect(x - s, y - s, s * 2, s)
+  }else if(type === 3){
+    drawGoblin(x, y+s/4, s)
   }
 }
 
@@ -454,6 +456,8 @@ const simplex = new SimplexNoise()
 const goblinCaves1 = new SimplexNoise()
 const goblinCaves2 = new SimplexNoise()
 const goblinCaves3 = new SimplexNoise()
+const goblinCaves4 = new SimplexNoise()
+const goblinCaves5 = new SimplexNoise()
 
 let krat = 20
 
@@ -478,18 +482,31 @@ const getSimplex = (S, x, y) => {
   return (S.noise2D(x / 12, y / 12))
 }
 
-const generateCell = (x, y) => {
-  T[strcoords(x, y)] = generationLogics(getSimplex(simplex, x, y)).T
-  if (x === basePosition.x && y === basePosition.y) {
-    return 2
-  } else {
-    O[strcoords(x, y)] = generationLogics(getSimplex(simplex, x, y)).O
+const nearObjects = (x, y, object, radius) => {
+  let count = 0
+  for (let i = x - radius; i <= x + radius; i++) {
+    for (let j = y - radius; j <= y + radius; j++) {
+      if (!(i === x - radius && j === y - radius) && !(i === x + radius && y + radius) && !(i === x && j === y)) {
+        if (O[strcoords(i, j)] === undefined) {
+          let x = getSimplex(simplex, i, j)
+          if (x > 0) {
+            if (x * 2 + 1 >= 1.25 && x * 2 + 1 < 2 && Math.floor((x * 2 + 1) * 10000) % 3 === 0) {
+              O[strcoords(i, j)] = 1 // forest
+            }else {
+              O[strcoords(i, j)] = 0
+            }
+          }
+        }
+        if (O[strcoords(i, j)] === object) {
+          count++
+        }
+      }
+    }
   }
-  G[strcoords(x, y)] = Math.floor(getSimplex(goblinCaves1, x, y)*10)*Math.floor(getSimplex(goblinCaves2, x, y)*10)*Math.floor(getSimplex(goblinCaves3, x, y)*10)
-
+  return count
 }
 
-const generationLogics = (x) => {
+const generationLogics = (x, X, Y) => {
   const R = {}
   if (x > 0) {
     if (x * 2 + 1 >= 1 && x * 2 + 1 < 2) {
@@ -505,46 +522,42 @@ const generationLogics = (x) => {
 
     if (x * 2 + 1 >= 1.25 && x * 2 + 1 < 2 && Math.floor((x * 2 + 1) * 10000) % 3 === 0) {
       R.O = 1 // forest
-    } else {
+    }else {
       R.O = 0
     }
   } else {
     R.T = 0 // biome
     R.O = 0 // object
   }
+  if(x * 2 + 1 >2.5 && G[strcoords(X, Y)]%15 === 0 && (G[strcoords(X, Y)]) >= 0 && nearObjects(X, Y, 3, 10)===0){
+    R.O = 3 // goblixir well
+    console.log("Goblin on xy: " + X + " " + Y)
+  }
   return R
+}
+
+const generateCell = (x, y) => {
+  G[strcoords(x, y)] = Math.floor(getSimplex(goblinCaves1, x, y)*10)*Math.floor(getSimplex(goblinCaves2, x, y)*10)*Math.floor(getSimplex(goblinCaves3, x, y)*10)*Math.floor(getSimplex(goblinCaves4, x, y)*10)*Math.floor(getSimplex(goblinCaves5, x, y)*10)
+  T[strcoords(x, y)] = generationLogics(getSimplex(simplex, x, y), x, y).T
+  if (x === basePosition.x && y === basePosition.y) {
+    return 2
+  } else {
+    O[strcoords(x, y)] = generationLogics(getSimplex(simplex, x, y), x, y).O
+  }
+  
+
 }
 
 const generateStartingTerrain = () => {
   for (let i = basePosition.x - Math.floor(krat / 2); i < basePosition.x + Math.floor(krat / 2); i++) {
     for (let j = basePosition.y - Math.floor(krat / 2); j < basePosition.y + Math.floor(krat / 2); j++) {
       generateCell(i, j)
-      //T[strcoords(i, j)] = generationLogics(getSimplex(simplex, i, j)).T
-      //O[strcoords(i, j)] = generationLogics(getSimplex(simplex, i, j)).O
-
-      // x*2+1  ->  1 - 3
     }
   }
 }
 
 generateStartingTerrain()
 
-const nearObjects = (x, y, object, radius) => {
-  let count = 0
-  for (let i = x - radius; i <= x + radius; i++) {
-    for (let j = y - radius; j <= y + radius; j++) {
-      if (!(i === x - radius && j === y - radius) && !(i === x + radius && y + radius) && !(i === x && j === y)) {
-        if (O[strcoords(i, j)] === undefined) {
-          generateCell(i, j)
-        }
-        if (O[strcoords(i, j)] === object) {
-          count++
-        }
-      }
-    }
-  }
-  return count
-}
 const nearBiomes = (x, y, biome, radius) => {
   let count = 0
   for (let i = x - radius; i <= x + radius; i++) {
@@ -585,7 +598,7 @@ while (true) {
   const X = basePosition.x
   const f = getSimplex(simplex, X, 0)
   if (f * 2 + 1 >= 1.25 && f * 2 + 1 < 2 && Math.floor((f * 2 + 1) * 10000) % 3 !== 0) {
-    if (nearObjects(X, 0, 1, 1) > 0 && nearBiomes(X, 0, 1, 1) > 2 && nearBiomes(X, 0, 0, 2) > 0 && nearBiomes(X, 0, 2, 2) > 0) {
+    if (nearObjects(X, 0, 1, 1) > 0 && nearBiomes(X, 0, 1, 1) > 2 && nearBiomes(X, 0, 0, 2) > 0 && nearBiomes(X, 0, 2, 2) === 0) {
       O[strcoords(basePosition.x, 0)] = 2 // main base
       break
     }
@@ -593,7 +606,7 @@ while (true) {
   basePosition.x++
 }
 
-explore(basePosition.x, basePosition.y, 50)
+explore(basePosition.x, basePosition.y, 2)
 
 const focus = { x: basePosition.x, y: basePosition.y - 1 }
 let cursor = { x: 'nope', y: 'nope' }
@@ -624,7 +637,6 @@ const seaportPrice = { wood: 150, stone: 200 }
 
 let time = Date.now()
 let lastTime = Date.now()
-
 const loop = (tick) => {
   window.requestAnimationFrame(loop)
   time = Date.now()
@@ -723,6 +735,7 @@ const loop = (tick) => {
           } else {
             cursor.x = i
             cursor.y = j
+            console.log(i, j)
           }
           Clicked = false
         }
@@ -733,11 +746,12 @@ const loop = (tick) => {
           }
           if (E[strcoords(i, j)] === 1) {
             drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, T[strcoords(i, j)])
+            // if(G[strcoords(i, j)]%15 === 0 && (G[strcoords(i, j)]) >= 0){
+            //   drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, 'brown')
+            // }//tunnels
             drawObject(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
             drawBuilding(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, B[strcoords(i, j)])
-            if(G[strcoords(i, j)]%8 === 0 && G[strcoords(i, j)] >= 0){
-              drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, 'brown')
-            }
+            
             
           } else {
             if (T[strcoords(i, j)] <= 0) {
