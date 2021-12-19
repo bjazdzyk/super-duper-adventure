@@ -162,7 +162,8 @@ const drawBuilding = (x, y, s, type) => {
     ctx.closePath()
 
     ctx.fill()
-  } else if (type === 2) { // observation tower
+  } 
+  else if (type === 2) { // observation tower
     const m = s / 6
     ctx.fillStyle = '#402800'
     ctx.lineWidth = 1
@@ -229,7 +230,8 @@ const drawBuilding = (x, y, s, type) => {
 
     ctx.fill()
     ctx.stroke()
-  }else if(type === 3){
+  }
+  else if(type === 3){
     const m = s/15
     ctx.strokeStyle = "black"
     ctx.fillStyle = "#66471d"
@@ -309,7 +311,8 @@ const drawBuilding = (x, y, s, type) => {
 
     ctx.fill()
     ctx.stroke()
-  }else if(type === 4){
+  }
+  else if(type === 4){
     const m = s/10
     const cellOffsetY = s/8
     ctx.strokeStyle = "black"
@@ -453,10 +456,12 @@ const pointWhichSide = (x1, y1, x2, y2, x3, y3) => {
     } else {
       return -1
     }
-  } else {
+  } 
+  else {
     if (y3 >= y1) {
       return 1
-    } else {
+    } 
+	else {
       return -1
     }
   }
@@ -525,9 +530,11 @@ const generationLogics = (x, X, Y) => {
   if (x > 0) {
     if (x * 2 + 1 >= 1 && x * 2 + 1 < 2) {
       R.T = 1 // plains
-    } else if (x * 2 + 1 >= 2 && x * 2 + 1 <= 3) {
+    } 
+	else if (x * 2 + 1 >= 2 && x * 2 + 1 <= 3) {
       R.T = 2 // mountains
-    } else {
+    } 
+	else {
       R.T = 0
     }
     if (x * 2 + 1 > 1 && x * 2 + 1 < 1.25) {
@@ -536,10 +543,12 @@ const generationLogics = (x, X, Y) => {
 
     if (x * 2 + 1 >= 1.25 && x * 2 + 1 < 2 && Math.floor((x * 2 + 1) * 10000) % 3 === 0) {
       R.O = 1 // forest
-    }else {
+    }
+	else {
       R.O = 0
     }
-  } else {
+  } 
+  else {
     R.T = 0 // biome
     R.O = 0 // object
   }
@@ -555,7 +564,8 @@ const generateCell = (x, y) => {
   T[strcoords(x, y)] = generationLogics(getSimplex(simplex, x, y), x, y).T
   if (x === basePosition.x && y === basePosition.y) {
     return 2
-  } else {
+  } 
+  else {
     O[strcoords(x, y)] = generationLogics(getSimplex(simplex, x, y), x, y).O
   }
   
@@ -597,7 +607,8 @@ const explore = (x, y, radius, how = "normal") => {
         }
         if(how === "normal"){
           E[strcoords(i, j)] = 1
-        }else if(how === "seaport"){
+        }
+		else if(how === "seaport"){
           if(T[strcoords(i, j)] === 0){
             E[strcoords(i, j)] = 1
           }
@@ -789,7 +800,8 @@ const loop = (tick) => {
 		  else {
             if (T[strcoords(i, j)] <= 0) {
               drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
-            } else {
+            } 
+			else {
               drawHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#cccccc')
             }
           }
@@ -911,7 +923,7 @@ document.addEventListener('mouseup', e => {
   Clicked = false
 })
 
-//Block Placing Logic
+//Building Placing Logic
 c.addEventListener('mousedown', e => {
   if (e.button === 2) {
     lastX = e.clientX
