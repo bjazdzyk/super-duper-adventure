@@ -62,7 +62,7 @@ const drawObject = (ctx, x, y, s, type) => {
     ctx.fillRect(x - s, y - s, s * 2, s)
     ctx.strokeRect(x - s, y - s, s * 2, s)
   } else if (type === 3) {
-    drawGoblin(x, y + s / 4, s)
+    drawGoblin(ctx, x, y + s / 4, s)
   }
 }
 
@@ -348,12 +348,12 @@ const drawGoblin = (ctx, x, y, s, goblinInfo = { color: '#1e526e', holdding: 'no
 
   ctx.fillStyle = '#30961e'
   ctx.beginPath()
-  ctx.roundRect(x - m * 3, y - m * 9, m * 6, m * 5, m)
+  roundRect(ctx, x - m * 3, y - m * 9, m * 6, m * 5, m)
   ctx.closePath()
   ctx.stroke()
   ctx.fill()
   ctx.beginPath()
-  ctx.roundRect(x - m * 1.75, y - m * 3.5, m * 3.5, m * 3, m)
+  roundRect(ctx, x - m * 1.75, y - m * 3.5, m * 3.5, m * 3, m)
   ctx.closePath()
   ctx.stroke()
   ctx.fill()
