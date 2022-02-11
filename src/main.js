@@ -58,11 +58,7 @@ const pointWhichSide = (x1, y1, x2, y2, x3, y3) => {
 // terrain generation
 
 const simplex = new SimplexNoise()
-const goblinCaves1 = new SimplexNoise()
-const goblinCaves2 = new SimplexNoise()
-const goblinCaves3 = new SimplexNoise()
-const goblinCaves4 = new SimplexNoise()
-const goblinCaves5 = new SimplexNoise()
+const goblinCaves = new SimplexNoise()
 
 let krat = 20
 
@@ -83,8 +79,8 @@ const G = {}
 
 const basePosition = { x: 0, y: 0 }
 
-const getSimplex = (S, x, y) => {
-  return (S.noise2D(x / 12, y / 12))
+const getSimplex = (S, x, y, z = 0) => {
+  return (S.noise3D(x / 12, y / 12, z))
 }
 
 const nearObjects = (x, y, object, radius) => {
@@ -114,18 +110,18 @@ const nearObjects = (x, y, object, radius) => {
 const generationLogics = (x, X, Y) => {
   const R = {}
   if (x > 0) {
-    if (x * 2 + 1 >= 1 && x * 2 + 1 < 2) {
+    if (x >= 0 && x < 0.5) {
       R.T = 1 // plains
-    } else if (x * 2 + 1 >= 2 && x * 2 + 1 <= 3) {
+    } else if (x >= 0.5) {
       R.T = 2 // mountains
     } else {
       R.T = 0
     }
-    if (x * 2 + 1 > 1 && x * 2 + 1 < 1.25) {
+    if (x > 0 && x < 0.125) {
       R.T = 4 // beach
     }
 
-    if (x * 2 + 1 >= 1.25 && x * 2 + 1 < 2 && Math.floor((x * 2 + 1) * 10000) % 3 === 0) {
+    if (x  >= 0.125 && x < 0.5 && Math.floor(x * 10000) % 3 === 0) {
       R.O = 1 // forest
     } else {
       R.O = 0
@@ -134,7 +130,7 @@ const generationLogics = (x, X, Y) => {
     R.T = 0 // biome
     R.O = 0 // object
   }
-  if (x * 2 + 1 > 2.5 && G[strcoords(X, Y)] % 15 === 0 && (G[strcoords(X, Y)]) >= 0 && nearObjects(X, Y, 3, 10) === 0) {
+  if (x > 0.75 && (G[strcoords(X, Y)]) >= 0 && nearObjects(X, Y, 3, 5) === 0) {
     R.O = 3 // goblixir well
     console.log('Goblin on xy: ' + X + ' ' + Y)
   }
@@ -142,7 +138,7 @@ const generationLogics = (x, X, Y) => {
 }
 
 const generateCell = (x, y) => {
-  G[strcoords(x, y)] = Math.floor(getSimplex(goblinCaves1, x, y) * 10) * Math.floor(getSimplex(goblinCaves2, x, y) * 10) * Math.floor(getSimplex(goblinCaves3, x, y) * 10) * Math.floor(getSimplex(goblinCaves4, x, y) * 10) * Math.floor(getSimplex(goblinCaves5, x, y) * 10)
+  G[strcoords(x, y)] = Math.floor(getSimplex(goblinCaves, x, y, getSimplex(simplex, x, y)*5)*10)
   T[strcoords(x, y)] = generationLogics(getSimplex(simplex, x, y), x, y).T
   if (x === basePosition.x && y === basePosition.y) {
     return 2
@@ -200,7 +196,7 @@ const explore = (x, y, radius, how = 'normal') => {
 while (true) {
   const X = basePosition.x
   const f = getSimplex(simplex, X, 0)
-  if (f * 2 + 1 >= 1.25 && f * 2 + 1 < 2 && Math.floor((f * 2 + 1) * 10000) % 3 !== 0) {
+  if (f >= 0.125 && f < 0.5 && Math.floor((f) * 10000) % 3 !== 0) {
     if (nearObjects(X, 0, 1, 1) > 0 && nearBiomes(X, 0, 1, 1) > 2 && nearBiomes(X, 0, 0, 2) > 0 && nearBiomes(X, 0, 2, 2) === 0) {
       O[strcoords(basePosition.x, 0)] = 2 // main base
       break
@@ -359,6 +355,7 @@ const loop = (tick) => {
             cursor.x = i
             cursor.y = j
             console.log(i, j)
+            console.log(G[strcoords(i, j)])
           }
           Clicked = false
         }
@@ -369,7 +366,7 @@ const loop = (tick) => {
           }
           if (E[strcoords(i, j)] === 1) {
             drawHexagon(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, T[strcoords(i, j)])
-            // if(G[strcoords(i, j)]%15 === 0 && (G[strcoords(i, j)]) >= 0){
+            // if((G[strcoords(i, j)]) >= 0){
             //   drawHexagon(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, 'brown')
             // }//tunnels
             drawObject(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
