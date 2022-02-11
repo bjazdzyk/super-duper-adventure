@@ -12,13 +12,56 @@ const drawBuilding = graphics.drawBuilding
 const drawGoblin = graphics.drawGoblin
 
 const c = document.getElementById('myCanvas')
+const ctx = c.getContext('2d')
+
 const homeButton = document.getElementById('home')
 const shopButton = document.getElementById('shop')
 const stonePitButton = document.getElementById('stonePit')
 const observationTowerButton = document.getElementById('observationTower')
 const sawmillButton = document.getElementById('sawmill')
 const seaportButton = document.getElementById('seaport')
-const ctx = c.getContext('2d')
+
+const shopOffers = [
+  {
+    name: "stonePit",
+    id: "B1",
+    button: document.getElementById('stonePit'),
+    price:{
+      stone: 40,
+      wood: 30
+    }
+  },
+  {
+    name: "sawmill",
+    id: "B3",
+    button: document.getElementById('sawmill'),
+    price:{
+      stone: 30,
+      wood: 20
+    }
+  },
+  {
+    name: "obTower",
+    id: "B2",
+    button: document.getElementById('observationTower'),
+    price:{
+      stone: 120,
+      wood: 100
+    }
+  },
+  {
+    name: "seaport",
+    id: "B4",
+    button: document.getElementById('seaport'),
+    price:{
+      stone: 200,
+      wood: 150
+    }
+  }
+]
+for(const offer of shopOffers){
+  console.log(offer)
+}
 
 
 const checkPointInHexagon = (x, y, s, cX, cY) => {
@@ -62,19 +105,19 @@ const goblinCaves = new SimplexNoise()
 
 let krat = 20
 
-// biomes
+// biomes 0-water 1-plains 2-mountains 4-beach
 const T = {}
 
-// objects
+// objects 1-forest 2-base 3-goblin
 const O = {}
 
-// buildings
+// buildings  1-stonePit 2-observationTower 3-sawmill 4-seaport
 const B = {}
 
-// explored terrain
+// explored terrain 0-"cloudy" 1-explored
 const E = {}
 
-// goblin caves
+// goblin caves 
 const G = {}
 
 const basePosition = { x: 0, y: 0 }
@@ -132,7 +175,7 @@ const generationLogics = (x, X, Y) => {
   }
   if (x > 0.75 && (G[strcoords(X, Y)]) >= 0 && nearObjects(X, Y, 3, 5) === 0) {
     R.O = 3 // goblixir well
-    console.log('Goblin on xy: ' + X + ' ' + Y)
+    //console.log('Goblin on xy: ' + X + ' ' + Y)
   }
   return R
 }
@@ -268,7 +311,7 @@ const loop = (tick) => {
     ctx.closePath()
     ctx.fill()
 
-    // wood storage
+    // wood storage // ugly
     ctx.beginPath()
     roundRect(ctx, _W - 230, 30, wood / woodLimit * 200, 30, 10)
     ctx.closePath()
@@ -298,12 +341,13 @@ const loop = (tick) => {
     ctx.fillStyle = 'black'
     ctx.fillText(Math.floor(stone).toString(), _W - 410, 50)
 
+    //very ugly
+
     document.getElementById('home').style.display = 'none'
     stonePitButton.style.display = 'block'
     observationTowerButton.style.display = 'block'
     sawmillButton.style.display = 'block'
     seaportButton.style.display = 'block'
-
     const shopButtonWidth = parseInt(window.getComputedStyle(stonePitButton).width)
     const shopButtonHeight = parseInt(window.getComputedStyle(stonePitButton).height)
     const shopButtonY = parseInt(window.getComputedStyle(stonePitButton).top)
@@ -336,6 +380,7 @@ const loop = (tick) => {
     ctx.strokeText(observationTowerPrice.stone.toString(), observationTowerX+75, shopButtonY + shopButtonHeight * 2 + 75)
     ctx.fillText(seaportPrice.stone.toString(), seaportX+75, shopButtonY + shopButtonHeight * 2 + 75)
     ctx.strokeText(seaportPrice.stone.toString(), seaportX+75, shopButtonY + shopButtonHeight * 2 + 75)
+    //TODO add dictionary for shop offers
   } else if (toggleShop === 0) {
     document.getElementById('home').style.display = 'block'
     stonePitButton.style.display = 'none'

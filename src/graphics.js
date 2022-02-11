@@ -204,7 +204,7 @@ const drawBuilding = (ctx, x, y, s, type) => {
 
     ctx.fill()
     ctx.stroke()
-  } else if (type === 3) {
+  } else if (type === 3) {//sawmill
     const m = s / 15
     ctx.strokeStyle = 'black'
     ctx.fillStyle = '#66471d'
@@ -284,7 +284,7 @@ const drawBuilding = (ctx, x, y, s, type) => {
 
     ctx.fill()
     ctx.stroke()
-  } else if (type === 4) {
+  } else if (type === 4) { //seaport
     const m = s / 10
     const cellOffsetY = s / 8
     ctx.strokeStyle = 'black'
