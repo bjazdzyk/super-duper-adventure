@@ -24,8 +24,10 @@ const seaportButton = document.getElementById('seaport')
 const shopOffers = [
   {
     name: "stonePit",
-    id: "B1",
-    button: document.getElementById('stonePit'),
+    type: "building",
+    num: 1,
+    left: 30,
+    width: 200,
     price:{
       stone: 40,
       wood: 30
@@ -33,17 +35,21 @@ const shopOffers = [
   },
   {
     name: "sawmill",
-    id: "B3",
-    button: document.getElementById('sawmill'),
+    type: "building",
+    num: 3,
+    left: 250,
+    width: 200,
     price:{
       stone: 30,
       wood: 20
     }
   },
   {
-    name: "obTower",
-    id: "B2",
-    button: document.getElementById('observationTower'),
+    name: "observationTower",
+    type: "building",
+    num: 2,
+    left:470,
+    width: 200,
     price:{
       stone: 120,
       wood: 100
@@ -51,17 +57,16 @@ const shopOffers = [
   },
   {
     name: "seaport",
-    id: "B4",
-    button: document.getElementById('seaport'),
+    type: "building",
+    num: 4,
+    left: 690,
+    width: 200,
     price:{
       stone: 200,
       wood: 150
     }
   }
 ]
-for(const offer of shopOffers){
-  console.log(offer)
-}
 
 
 const checkPointInHexagon = (x, y, s, cX, cY) => {
@@ -311,7 +316,7 @@ const loop = (tick) => {
     ctx.closePath()
     ctx.fill()
 
-    // wood storage // ugly
+    // wood storage
     ctx.beginPath()
     roundRect(ctx, _W - 230, 30, wood / woodLimit * 200, 30, 10)
     ctx.closePath()
@@ -341,46 +346,32 @@ const loop = (tick) => {
     ctx.fillStyle = 'black'
     ctx.fillText(Math.floor(stone).toString(), _W - 410, 50)
 
-    //very ugly
-
     document.getElementById('home').style.display = 'none'
-    stonePitButton.style.display = 'block'
-    observationTowerButton.style.display = 'block'
-    sawmillButton.style.display = 'block'
-    seaportButton.style.display = 'block'
-    const shopButtonWidth = parseInt(window.getComputedStyle(stonePitButton).width)
-    const shopButtonHeight = parseInt(window.getComputedStyle(stonePitButton).height)
-    const shopButtonY = parseInt(window.getComputedStyle(stonePitButton).top)
-    const stonePitX = parseInt(window.getComputedStyle(stonePitButton).left)
-    const sawmillX = parseInt(window.getComputedStyle(sawmillButton).left)
-    const seaportX = parseInt(window.getComputedStyle(seaportButton).left)
-    const observationTowerX = parseInt(window.getComputedStyle(observationTowerButton).left)
-    drawBuilding(ctx, stonePitX + shopButtonWidth / 2, shopButtonY + shopButtonHeight * 2 + 10, shopButtonHeight * 4 / 3, 1)
-    drawBuilding(ctx, sawmillX + shopButtonWidth / 2, shopButtonY + shopButtonHeight * 2 + 10, shopButtonHeight * 4 / 3, 3)
-    drawBuilding(ctx, observationTowerX + shopButtonWidth / 2, shopButtonY + shopButtonHeight * 2 + 10, shopButtonHeight * 4 / 3, 2)
-    drawBuilding(ctx, seaportX + shopButtonWidth / 2, shopButtonY + shopButtonHeight * 1.75 + 10, shopButtonHeight * 4 / 3, 4)
-    ctx.fillStyle = '#9c772d'
-    ctx.font = "30px Courier New";
-    ctx.strokeStyle = "black"
-    ctx.lineWidth = 1
-    ctx.fillText(stonePitPrice.wood.toString(), stonePitX, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.strokeText(stonePitPrice.wood.toString(), stonePitX, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.fillText(sawmillPrice.wood.toString(), sawmillX, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.strokeText(sawmillPrice.wood.toString(), sawmillX, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.fillText(observationTowerPrice.wood.toString(), observationTowerX, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.strokeText(observationTowerPrice.wood.toString(), observationTowerX, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.fillText(seaportPrice.wood.toString(), seaportX, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.strokeText(seaportPrice.wood.toString(), seaportX, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.fillStyle = '#525252'
-    ctx.fillText(stonePitPrice.stone.toString(), stonePitX+75, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.strokeText(stonePitPrice.stone.toString(), stonePitX+75, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.fillText(sawmillPrice.stone.toString(), sawmillX+75, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.strokeText(sawmillPrice.stone.toString(), sawmillX+75, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.fillText(observationTowerPrice.stone.toString(), observationTowerX+75, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.strokeText(observationTowerPrice.stone.toString(), observationTowerX+75, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.fillText(seaportPrice.stone.toString(), seaportX+75, shopButtonY + shopButtonHeight * 2 + 75)
-    ctx.strokeText(seaportPrice.stone.toString(), seaportX+75, shopButtonY + shopButtonHeight * 2 + 75)
-    //TODO add dictionary for shop offers
+    for(let offer of shopOffers){
+      const width = offer.width
+      const height = 100
+      const offsetX = offer.left
+      let offsetY = 70
+      document.getElementById(offer.name).style.display = 'block'
+      document.getElementById(offer.name).style.width = offer.width
+      if(offer.type == "building"){
+        if(offer.num == 4){
+          drawBuilding(ctx, offsetX+width/2, offsetY+height*1.75+10, height*4/3, offer.num)
+        }else{
+          drawBuilding(ctx, offsetX+width/2, offsetY+height*2+10, height*4/3, offer.num)
+        }
+      }
+      ctx.font = "30px Courier New";
+      ctx.strokeStyle = "black"
+      ctx.lineWidth = 1
+
+      ctx.fillStyle = '#9c772d'
+      ctx.fillText(offer.price.wood.toString(), offsetX, offsetY + height * 2 + 75)
+      ctx.strokeText(offer.price.wood.toString(), offsetX, offsetY + height * 2 + 75)
+      ctx.fillStyle = '#525252'
+      ctx.fillText(offer.price.stone.toString(), offsetX+75, offsetY + height * 2 + 75)
+      ctx.strokeText(offer.price.stone.toString(), offsetX+75, offsetY + height * 2 + 75)
+    }
   } else if (toggleShop === 0) {
     document.getElementById('home').style.display = 'block'
     stonePitButton.style.display = 'none'
