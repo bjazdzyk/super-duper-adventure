@@ -137,7 +137,7 @@ const drawBuilding = (ctx, x, y, s, type) => {
     ctx.closePath()
 
     ctx.fill()
-  } else if (type === 2) { // observation tower
+  } else if (type === 2) { // outpost
     const m = s / 6
     ctx.fillStyle = '#402800'
     ctx.lineWidth = 1

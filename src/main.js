@@ -17,7 +17,7 @@ const ctx = c.getContext('2d')
 const homeButton = document.getElementById('home')
 const shopButton = document.getElementById('shop')
 const stonePitButton = document.getElementById('stonePit')
-const observationTowerButton = document.getElementById('observationTower')
+const outpostButton = document.getElementById('outpost')
 const sawmillButton = document.getElementById('sawmill')
 const seaportButton = document.getElementById('seaport')
 
@@ -45,7 +45,7 @@ const shopOffers = [
     }
   },
   {
-    name: "observationTower",
+    name: "outpost",
     type: "building",
     num: 2,
     left:470,
@@ -116,7 +116,7 @@ const T = {}
 // objects 1-forest 2-base 3-goblin
 const O = {}
 
-// buildings  1-stonePit 2-observationTower 3-sawmill 4-seaport
+// buildings  1-stonePit 2-outpost 3-sawmill 4-seaport
 const B = {}
 
 // explored terrain 0-"cloudy" 1-explored
@@ -278,7 +278,7 @@ const stoneLimit = 500
 let stoneIncreasing = 0
 let woodIncreasing = 0
 const stonePitPrice = { wood: 30, stone: 40 }
-const observationTowerPrice = { wood: 100, stone: 120 }
+const outpostPrice = { wood: 100, stone: 120 }
 const sawmillPrice = { wood: 20, stone: 30 }
 const seaportPrice = { wood: 150, stone: 200 }
 
@@ -375,7 +375,7 @@ const loop = (tick) => {
   } else if (toggleShop === 0) {
     document.getElementById('home').style.display = 'block'
     stonePitButton.style.display = 'none'
-    observationTowerButton.style.display = 'none'
+    outpostButton.style.display = 'none'
     sawmillButton.style.display = 'none'
     seaportButton.style.display = 'none'
     // clear screen
@@ -541,9 +541,9 @@ c.addEventListener('mousedown', e => {
       }
     } else if (placing === 2) {
       if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && O[strcoords(cursor.x, cursor.y)] === 0) {
-        if (stone >= observationTowerPrice.stone && wood >= observationTowerPrice.wood) {
-          stone -= observationTowerPrice.stone
-          wood -= observationTowerPrice.wood
+        if (stone >= outpostPrice.stone && wood >= outpostPrice.wood) {
+          stone -= outpostPrice.stone
+          wood -= outpostPrice.wood
           explore(cursor.x, cursor.y, 3)
           B[strcoords(cursor.x, cursor.y)] = placing
         }
@@ -638,8 +638,8 @@ stonePitButton.addEventListener('click', e => {
   }
 })
 
-observationTowerButton.addEventListener('click', e => {
-  if (stone >= observationTowerPrice.stone && wood >= observationTowerPrice.wood) {
+outpostButton.addEventListener('click', e => {
+  if (stone >= outpostPrice.stone && wood >= outpostPrice.wood) {
     toggleShop = 0
     placing = 2
   }
