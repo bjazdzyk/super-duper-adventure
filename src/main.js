@@ -232,7 +232,7 @@ const explore = (x, y, radius, how = 'normal') => {
         if (how === 'normal') {
           E[strcoords(i, j)] = 1
         } else if (how === 'seaport') {
-          if (T[strcoords(i, j)] === 0) {
+          if (T[strcoords(i, j)] === 0 || T[strcoords(i, j)] === 4) {
             E[strcoords(i, j)] = 1
           }
         }
