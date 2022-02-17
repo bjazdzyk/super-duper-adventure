@@ -25,6 +25,8 @@ const stonePitPrice = { wood: 30, stone: 40 }
 const outpostPrice = { wood: 100, stone: 120 }
 const sawmillPrice = { wood: 20, stone: 30 }
 const seaportPrice = { wood: 150, stone: 200 }
+const housePrice = { wood: 20, stone: 10 }
+
 
 const shopOffers = [
   {
@@ -58,6 +60,14 @@ const shopOffers = [
     left: 690,
     width: 200,
     price:seaportPrice
+  },
+  {
+    name: "house",
+    type: "building",
+    num: 5,
+    left: 910,
+    width: 200,
+    price:housePrice
   }
 ]
 
@@ -246,7 +256,7 @@ while (true) {
   basePosition.x++
 }
 
-explore(basePosition.x, basePosition.y, 2)
+explore(basePosition.x, basePosition.y, 3)
 
 const focus = { x: basePosition.x, y: basePosition.y - 1 }
 let cursor = { x: 'nope', y: 'nope' }
@@ -364,10 +374,9 @@ const loop = (tick) => {
     }
   } else if (toggleShop === 0) {
     document.getElementById('home').style.display = 'block'
-    stonePitButton.style.display = 'none'
-    outpostButton.style.display = 'none'
-    sawmillButton.style.display = 'none'
-    seaportButton.style.display = 'none'
+    for(const offer of shopOffers){
+      document.getElementById(offer.name).style.display = 'none'
+    }
     // clear screen
     ctx.fillStyle = '#0000FF'
     ctx.fillRect(0, 0, _W, _H)
@@ -463,6 +472,12 @@ const loop = (tick) => {
           } else {
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
           }
+        }else if(placing === 5){
+          if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0) {
+            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+          } else {
+            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+          }
         }
       }
     }
@@ -534,7 +549,7 @@ c.addEventListener('mousedown', e => {
         if (stone >= outpostPrice.stone && wood >= outpostPrice.wood) {
           stone -= outpostPrice.stone
           wood -= outpostPrice.wood
-          explore(cursor.x, cursor.y, 3)
+          explore(cursor.x, cursor.y, 4)
           B[strcoords(cursor.x, cursor.y)] = placing
         }
       }
@@ -556,6 +571,15 @@ c.addEventListener('mousedown', e => {
           wood -= seaportPrice.wood
           explore(cursor.x, cursor.y, 5, 'seaport')
           explore(cursor.x, cursor.y, 1)
+          B[strcoords(cursor.x, cursor.y)] = placing
+        }
+      }
+    }else if (placing === 5) {
+      if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0) {
+        if (stone >= housePrice.stone && wood >= housePrice.wood) {
+          stone -= housePrice.stone
+          wood -= housePrice.wood
+          explore(cursor.x, cursor.y, 2)
           B[strcoords(cursor.x, cursor.y)] = placing
         }
       }
@@ -617,36 +641,17 @@ homeButton.addEventListener('mousedown', e => {
   }
 })
 
+for(const offer of shopOffers){
+  document.getElementById(offer.name).addEventListener('click', e => {
+    if (stone >= offer.price.stone && wood >= offer.price.wood) {
+      toggleShop = 0
+      placing = offer.num
+    }
+  })
+}
+
 shopButton.addEventListener('click', e => {
   toggleShop = (toggleShop + 1) % 2
-})
-
-stonePitButton.addEventListener('click', e => {
-  if (stone >= stonePitPrice.stone && wood >= stonePitPrice.wood) {
-    toggleShop = 0
-    placing = 1
-  }
-})
-
-outpostButton.addEventListener('click', e => {
-  if (stone >= outpostPrice.stone && wood >= outpostPrice.wood) {
-    toggleShop = 0
-    placing = 2
-  }
-})
-
-sawmillButton.addEventListener('click', e => {
-  if (stone >= sawmillPrice.stone && wood >= sawmillPrice.wood) {
-    toggleShop = 0
-    placing = 3
-  }
-})
-
-seaportButton.addEventListener('click', e => {
-  if (stone >= seaportPrice.stone && wood >= seaportPrice.wood) {
-    toggleShop = 0
-    placing = 4
-  }
 })
 
 loop()

@@ -311,7 +311,7 @@ const drawBuilding = (ctx, x, y, s, type) => {
     ctx.arc(x, y + m * 0.9, m * 2, 0, 1 * Math.PI)
     ctx.stroke()
   } else if(type === 5){//house
-    const m = s/12
+    const m = s/7
     ctx.fillStyle = "#a3a258"
     ctx.strokeStyle = "black"
     ctx.lineWidth = 1
