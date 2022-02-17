@@ -21,6 +21,11 @@ const outpostButton = document.getElementById('outpost')
 const sawmillButton = document.getElementById('sawmill')
 const seaportButton = document.getElementById('seaport')
 
+const stonePitPrice = { wood: 30, stone: 40 }
+const outpostPrice = { wood: 100, stone: 120 }
+const sawmillPrice = { wood: 20, stone: 30 }
+const seaportPrice = { wood: 150, stone: 200 }
+
 const shopOffers = [
   {
     name: "stonePit",
@@ -28,10 +33,7 @@ const shopOffers = [
     num: 1,
     left: 30,
     width: 200,
-    price:{
-      stone: 40,
-      wood: 30
-    }
+    price:stonePitPrice
   },
   {
     name: "sawmill",
@@ -39,10 +41,7 @@ const shopOffers = [
     num: 3,
     left: 250,
     width: 200,
-    price:{
-      stone: 30,
-      wood: 20
-    }
+    price:sawmillPrice
   },
   {
     name: "outpost",
@@ -50,10 +49,7 @@ const shopOffers = [
     num: 2,
     left:470,
     width: 200,
-    price:{
-      stone: 120,
-      wood: 100
-    }
+    price:outpostPrice
   },
   {
     name: "seaport",
@@ -61,10 +57,7 @@ const shopOffers = [
     num: 4,
     left: 690,
     width: 200,
-    price:{
-      stone: 200,
-      wood: 150
-    }
+    price:seaportPrice
   }
 ]
 
@@ -277,10 +270,7 @@ const stoneLimit = 500
 
 let stoneIncreasing = 0
 let woodIncreasing = 0
-const stonePitPrice = { wood: 30, stone: 40 }
-const outpostPrice = { wood: 100, stone: 120 }
-const sawmillPrice = { wood: 20, stone: 30 }
-const seaportPrice = { wood: 150, stone: 200 }
+
 
 let time = Date.now()
 let lastTime = Date.now()
@@ -444,7 +434,7 @@ const loop = (tick) => {
         ctx.stroke()
 
         ctx.lineWidth = 1
-        drawObject(ctx, _W * 0.99 - 100, _H * 0.06 + 60, _H * 0.04, O[strcoords(cursor.x, cursor.y)])
+        drawBuilding(ctx, _W * 0.99 - 100, _H * 0.06 + 160, _H * 0.3, 5)
       }
     } else {
       // draw cursor (green/red)

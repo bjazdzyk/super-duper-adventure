@@ -310,6 +310,43 @@ const drawBuilding = (ctx, x, y, s, type) => {
     ctx.beginPath()
     ctx.arc(x, y + m * 0.9, m * 2, 0, 1 * Math.PI)
     ctx.stroke()
+  } else if(type === 5){//house
+    const m = s/12
+    ctx.fillStyle = "#a3a258"
+    ctx.strokeStyle = "black"
+    ctx.lineWidth = 1
+
+    ctx.beginPath()
+    ctx.moveTo(x-2.5*m, y+m/2)
+    ctx.lineTo(x+m/2, y+m/2)
+    ctx.moveTo(x, y)
+    ctx.lineTo(x+2.5*m, y)
+    ctx.closePath()
+
+    ctx.stroke()
+
+    ctx.fillRect(x, y-m*1.5, m*2, m*1.5)
+    ctx.strokeRect(x, y-m*1.5, m*2, m*1.5)
+    ctx.fillRect(x-m*2, y-m*3, m*2, m*3.5)
+    ctx.strokeRect(x-m*2, y-m*3, m*2, m*3.5)
+
+    ctx.fillStyle = "#e3e394"
+
+    ctx.fillRect(x-m*1.75, y-m*2.75, 0.5*m, 0.5*m)
+    ctx.fillRect(x-m*0.75, y-m*2.75, 0.5*m, 0.5*m)
+    ctx.fillRect(x-m*1.75, y-m*1.75, 0.5*m, 0.5*m)
+    ctx.fillRect(x-m*0.75, y-m*1.75, 0.5*m, 0.5*m)
+    ctx.fillRect(x-m*0.75, y-m*0.75, 0.5*m, 0.5*m)
+    ctx.fillRect(x+m*0.25, y-m, m*0.5, m*0.5)
+    ctx.fillRect(x+m*1.25, y-m, m*0.5, m*0.5)
+
+    ctx.fillStyle = "#26260a"
+    ctx.fillRect(x-m*1.75, y-m*0.75, 0.75*m, 1.25*m)
+
+    ctx.fillRect(x-m*2, y-m*3.5, 2*m, 0.5*m)
+    ctx.fillRect(x, y-m*2, 2*m, 0.5*m)
+
+
   }
 }
 
