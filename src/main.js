@@ -116,10 +116,10 @@ let krat = 20
 // biomes 0-water 1-plains 2-mountains 4-beach
 const T = {}
 
-// objects 1-forest 2-base 3-goblin
+// objects 1-forest 3-goblin
 const O = {}
 
-// buildings  1-stonePit 2-outpost 3-sawmill 4-seaport
+// buildings  1-stonePit 2-outpost 3-sawmill 4-seaport 5-house 6-base
 const B = {}
 
 // explored terrain 0-"cloudy" 1-explored
@@ -224,6 +224,19 @@ const nearBiomes = (x, y, biome, radius) => {
   }
   return count
 }
+const nearBuildings = (x, y, building, radius) => {
+  let count = 0
+  for (let i = x - radius; i <= x + radius; i++) {
+    for (let j = y - radius; j <= y + radius; j++) {
+      if (!(i === x - radius && j === y - radius) && !(i === x + radius && j === y + radius) && !(i === x && j === y)) {
+        if (B[strcoords(i, j)] === building) {
+          count++
+        }
+      }
+    }
+  }
+  return count
+}
 
 const explore = (x, y, radius, how = 'normal') => {
   for (let i = x - radius; i <= x + radius; i++) {
@@ -245,15 +258,14 @@ const explore = (x, y, radius, how = 'normal') => {
 }
 
 while (true) {
+  basePosition.x++
   const X = basePosition.x
   const f = getSimplex(simplex, X, 0)
-  if (f >= 0.125 && f < 0.5 && Math.floor((f) * 10000) % 3 !== 0) {
-    if (nearObjects(X, 0, 1, 1) > 0 && nearBiomes(X, 0, 1, 1) > 2 && nearBiomes(X, 0, 0, 2) > 0 && nearBiomes(X, 0, 2, 2) === 0) {
-      O[strcoords(basePosition.x, 0)] = 2 // main base
-      break
-    }
+  if (f >= 0.13 && f < 1 && Math.floor((f) * 10000) % 3 !== 0) {
+    B[strcoords(X, 0)] = 6 // main base
+    O[strcoords(X, 0)] = 0
+    break
   }
-  basePosition.x++
 }
 
 explore(basePosition.x, basePosition.y, 3)
@@ -473,7 +485,8 @@ const loop = (tick) => {
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
           }
         }else if(placing === 5){
-          if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0) {
+          if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0 && (nearBuildings(cursor.x, cursor.y, 5, 1)>0||nearBuildings(cursor.x, cursor.y, 6, 1)>0)) {
+            console.log(nearObjects(cursor.x, cursor.y, 2, 1), nearBuildings(cursor.x, cursor.y, 5, 1))
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
           } else {
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
@@ -540,7 +553,6 @@ c.addEventListener('mousedown', e => {
           stoneIncreasing += 0.1
           stone -= stonePitPrice.stone
           wood -= stonePitPrice.wood
-          explore(cursor.x, cursor.y, 1)
           B[strcoords(cursor.x, cursor.y)] = placing
         }
       }
@@ -559,7 +571,6 @@ c.addEventListener('mousedown', e => {
           woodIncreasing += 0.1
           stone -= sawmillPrice.stone
           wood -= sawmillPrice.wood
-          explore(cursor.x, cursor.y, 1)
           B[strcoords(cursor.x, cursor.y)] = placing
           O[strcoords(cursor.x, cursor.y)] = 0
         }
@@ -575,7 +586,7 @@ c.addEventListener('mousedown', e => {
         }
       }
     }else if (placing === 5) {
-      if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0) {
+      if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0 && (nearBuildings(cursor.x, cursor.y, 5, 1)>0||nearBuildings(cursor.x, cursor.y, 6, 1)>0)) {
         if (stone >= housePrice.stone && wood >= housePrice.wood) {
           stone -= housePrice.stone
           wood -= housePrice.wood

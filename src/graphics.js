@@ -55,12 +55,6 @@ const drawObject = (ctx, x, y, s, type) => {
     ctx.arc(x, y - s * 3 / 12, s / 3, 0, 2 * Math.PI)
     ctx.fill()
     ctx.stroke()
-  } else if (type === 2) { // main base
-    s /= 2
-    ctx.fillStyle = 'gray'
-    ctx.strokeStyle = 'black'
-    ctx.fillRect(x - s, y - s, s * 2, s)
-    ctx.strokeRect(x - s, y - s, s * 2, s)
   } else if (type === 3) {
     drawGoblin(ctx, x, y + s / 4, s)
   }
@@ -347,6 +341,12 @@ const drawBuilding = (ctx, x, y, s, type) => {
     ctx.fillRect(x, y-m*2, 2*m, 0.5*m)
 
 
+  }else if (type === 6) { // main base
+    s /= 2
+    ctx.fillStyle = 'gray'
+    ctx.strokeStyle = 'black'
+    ctx.fillRect(x - s, y - s, s * 2, s)
+    ctx.strokeRect(x - s, y - s, s * 2, s)
   }
 }
 
