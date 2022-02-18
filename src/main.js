@@ -403,6 +403,7 @@ const loop = (tick) => {
             cursor.y = j
             console.log(i, j)
             console.log(G[strcoords(i, j)])
+            console.log(B[strcoords(i, j)])
           }
           Clicked = false
         }
@@ -461,13 +462,13 @@ const loop = (tick) => {
       // draw cursor (green/red)
       if (Math.floor(time) % 800 < 700) {
         if (placing === 1) {
-          if (E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && O[strcoords(cursor.x, cursor.y)] === 0) {
+          if (!B[strcoords(cursor.x, cursor.y)] && E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && !O[strcoords(cursor.x, cursor.y)]) {
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
           } else {
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
           }
         } else if (placing === 2) {
-          if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && O[strcoords(cursor.x, cursor.y)] === 0) {
+          if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && !O[strcoords(cursor.x, cursor.y)]) {
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
           } else {
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
@@ -479,13 +480,13 @@ const loop = (tick) => {
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
           }
         } else if (placing === 4) {
-          if (E[strcoords(cursor.x, cursor.y)] && nearBiomes(cursor.x, cursor.y, 0, 1) > 0 && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0) {
+          if (E[strcoords(cursor.x, cursor.y)] && nearBiomes(cursor.x, cursor.y, 0, 1) > 0 && T[strcoords(cursor.x, cursor.y)] && !O[strcoords(cursor.x, cursor.y)]) {
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
           } else {
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
           }
         }else if(placing === 5){
-          if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0 && (nearBuildings(cursor.x, cursor.y, 5, 1)>0||nearBuildings(cursor.x, cursor.y, 6, 1)>0)) {
+          if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] && O[strcoords(cursor.x, cursor.y)] === 0 && (nearBuildings(cursor.x, cursor.y, 5, 1)>0||nearBuildings(cursor.x, cursor.y, 6, 1)>0) && !B[strcoords(cursor.x, cursor.y)]) {
             console.log(nearObjects(cursor.x, cursor.y, 2, 1), nearBuildings(cursor.x, cursor.y, 5, 1))
             drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
           } else {
@@ -548,7 +549,7 @@ c.addEventListener('mousedown', e => {
     isDragging = true
   } else if (placing !== 0) {
     if (placing === 1) {
-      if (E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && O[strcoords(cursor.x, cursor.y)] === 0) {
+      if (!B[strcoords(cursor.x, cursor.y)] && E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && !O[strcoords(cursor.x, cursor.y)]) {
         if (stone >= stonePitPrice.stone && wood >= stonePitPrice.wood) {
           stoneIncreasing += 0.1
           stone -= stonePitPrice.stone
@@ -557,7 +558,7 @@ c.addEventListener('mousedown', e => {
         }
       }
     } else if (placing === 2) {
-      if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && O[strcoords(cursor.x, cursor.y)] === 0) {
+      if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && !O[strcoords(cursor.x, cursor.y)]) {
         if (stone >= outpostPrice.stone && wood >= outpostPrice.wood) {
           stone -= outpostPrice.stone
           wood -= outpostPrice.wood
@@ -576,7 +577,7 @@ c.addEventListener('mousedown', e => {
         }
       }
     } else if (placing === 4) {
-      if (E[strcoords(cursor.x, cursor.y)] && nearBiomes(cursor.x, cursor.y, 0, 1) > 0 && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0) {
+      if (E[strcoords(cursor.x, cursor.y)] && nearBiomes(cursor.x, cursor.y, 0, 1) > 0 && T[strcoords(cursor.x, cursor.y)] && !O[strcoords(cursor.x, cursor.y)] && !B[strcoords(cursor.x, cursor.y)]) {
         if (stone >= seaportPrice.stone && wood >= seaportPrice.wood) {
           stone -= seaportPrice.stone
           wood -= seaportPrice.wood
@@ -586,7 +587,7 @@ c.addEventListener('mousedown', e => {
         }
       }
     }else if (placing === 5) {
-      if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] !== 0 && O[strcoords(cursor.x, cursor.y)] === 0 && (nearBuildings(cursor.x, cursor.y, 5, 1)>0||nearBuildings(cursor.x, cursor.y, 6, 1)>0)) {
+      if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] && !O[strcoords(cursor.x, cursor.y)] && (nearBuildings(cursor.x, cursor.y, 5, 1)>0 || nearBuildings(cursor.x, cursor.y, 6, 1)>0) && !B[strcoords(cursor.x, cursor.y)]) {
         if (stone >= housePrice.stone && wood >= housePrice.wood) {
           stone -= housePrice.stone
           wood -= housePrice.wood
