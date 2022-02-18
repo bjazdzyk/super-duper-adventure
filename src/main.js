@@ -27,6 +27,14 @@ const sawmillPrice = { wood: 20, stone: 30 }
 const seaportPrice = { wood: 150, stone: 200 }
 const housePrice = { wood: 20, stone: 10 }
 
+//localStorage
+let LS
+if(typeof(Storage) === undefined){
+  LS = false
+  alert("Your browser doesn't support local storage\n You will not be able to save your progress")
+}else{
+  LS = true
+}
 
 const shopOffers = [
   {
@@ -456,7 +464,8 @@ const loop = (tick) => {
         ctx.stroke()
 
         ctx.lineWidth = 1
-        drawBuilding(ctx, _W * 0.99 - 100, _H * 0.06 + 160, _H * 0.3, 5)
+        //drawBuilding(ctx, _W * 0.99 - 100, _H * 0.06 + 160, _H * 0.3, 5)
+
       }
     } else {
       // draw cursor (green/red)
