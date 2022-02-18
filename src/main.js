@@ -136,7 +136,7 @@ const E = {}
 // goblin caves 
 const G = {}
 
-const basePosition = { x: 0, y: 0 }
+let basePosition = { x: 0, y: 0 }
 
 const getSimplex = (S, x, y, z = 0) => {
   return (S.noise3D(x / 12, y / 12, z))
@@ -176,7 +176,7 @@ const generationLogics = (x, X, Y) => {
     } else {
       R.T = 0
     }
-    if (x > 0 && x < 0.125) {
+    if (x >= 0 && x < 0.125) {
       R.T = 4 // beach
     }
 
@@ -264,14 +264,28 @@ const explore = (x, y, radius, how = 'normal') => {
     }
   }
 }
+let l = 1
 
 while (true) {
-  basePosition.x++
-  const X = basePosition.x
-  const f = getSimplex(simplex, X, 0)
-  if (f >= 0.13 && f < 1 && Math.floor((f) * 10000) % 3 !== 0) {
-    B[strcoords(X, 0)] = 6 // main base
-    O[strcoords(X, 0)] = 0
+  let found = false
+  l++
+  const h = []
+  h.push([basePosition.x+l, basePosition.y])
+  h.push([basePosition.x-l, basePosition.y])
+  h.push([basePosition.x, basePosition.y+l])
+  h.push([basePosition.x, basePosition.y-l])
+  for(let f of h){
+    const x = getSimplex(simplex, f[0], f[1])
+    console.log(f)
+    if (x >= 0.12 && x < 0.4 && Math.floor((x) * 10000) % 3 !== 0) {
+      B[strcoords(f[0], f[1])] = 6 // main base
+      O[strcoords(f[0], f[1])] = 0
+      found = true
+      basePosition = {x:f[0], y:f[1]}
+      break
+    }
+  }
+  if(found){
     break
   }
 }
