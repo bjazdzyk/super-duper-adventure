@@ -29,11 +29,13 @@ const housePrice = { wood: 20, stone: 10 }
 
 //localStorage
 let LS
+let storage = window.localStorage
 if(typeof(Storage) === undefined){
   LS = false
   alert("Your browser doesn't support local storage\n You will not be able to save your progress")
 }else{
   LS = true
+  storage = window.localStorage
 }
 
 const shopOffers = [
@@ -113,28 +115,37 @@ const pointWhichSide = (x1, y1, x2, y2, x3, y3) => {
     }
   }
 }
+let data
+if(LS){
+  data = JSON.parse(storage.getItem('data'))
+}
 
-// terrain generation
+let seed, gSeed, T, O, B, E, G
 
-const simplex = new SimplexNoise()
-const goblinCaves = new SimplexNoise()
+if(storage.seed){
+  seed = JSON.parse(storage.getItem('seed'))
+}else{
+  seed = Math.random()
+  storage.setItem('seed', JSON.stringify(seed))
+}
 
-let krat = 20
+gSeed = Math.random()
 
 // biomes 0-water 1-plains 2-mountains 4-beach
-const T = {}
-
+T = {}
 // objects 1-forest 3-goblin
-const O = {}
-
+O = {}
 // buildings  1-stonePit 2-outpost 3-sawmill 4-seaport 5-house 6-base
-const B = {}
-
+B = {}
 // explored terrain 0-"cloudy" 1-explored
-const E = {}
-
+E = {}
 // goblin caves 
-const G = {}
+G = {}
+const simplex = new SimplexNoise(seed)
+const goblinCaves = new SimplexNoise(gSeed)
+
+
+let krat = 20
 
 let basePosition = { x: 0, y: 0 }
 
@@ -276,7 +287,6 @@ while (true) {
   h.push([basePosition.x, basePosition.y-l])
   for(let f of h){
     const x = getSimplex(simplex, f[0], f[1])
-    console.log(f)
     if (x >= 0.12 && x < 0.4 && Math.floor((x) * 10000) % 3 !== 0) {
       B[strcoords(f[0], f[1])] = 6 // main base
       O[strcoords(f[0], f[1])] = 0
@@ -424,8 +434,6 @@ const loop = (tick) => {
             cursor.x = i
             cursor.y = j
             console.log(i, j)
-            console.log(G[strcoords(i, j)])
-            console.log(B[strcoords(i, j)])
           }
           Clicked = false
         }
