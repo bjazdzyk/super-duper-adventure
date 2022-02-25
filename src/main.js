@@ -115,6 +115,15 @@ const pointWhichSide = (x1, y1, x2, y2, x3, y3) => {
     }
   }
 }
+const store =(key, key2, value)=>{
+  const a = {}
+  a[key2] = value
+  localStorage.setItem(key, JSON.stringify(Object.assign({}, JSON.parse(localStorage.getItem(key)), a)))
+}
+const getData =(key, key2)=>{
+  return JSON.parse(localStorage.getItem(key))[key2]
+}
+
 let data
 if(LS){
   data = JSON.parse(storage.getItem('data'))
@@ -129,23 +138,39 @@ if(storage.seed){
   storage.setItem('seed', JSON.stringify(seed))
 }
 
-gSeed = Math.random()
+if(storage.gSeed){
+  gSeed = JSON.parse(storage.getItem('gSeed'))
+}else{
+  gSeed = Math.random()
+  storage.setItem('gSeed', JSON.stringify(gSeed))
+}
+
+if(storage.E){
+  E = JSON.parse(storage.getItem('E'))
+}else{
+  E = {}// explored terrain 0-"cloudy" 1-explored
+  storage.setItem('E', JSON.stringify(E))
+}
+
+if(storage.B){
+  B = JSON.parse(storage.getItem('B'))
+}else{
+  B = {}// buildings  1-stonePit 2-outpost 3-sawmill 4-seaport 5-house 6-base
+  storage.setItem('B', JSON.stringify(B))
+}
+
 
 // biomes 0-water 1-plains 2-mountains 4-beach
 T = {}
 // objects 1-forest 3-goblin
 O = {}
-// buildings  1-stonePit 2-outpost 3-sawmill 4-seaport 5-house 6-base
-B = {}
-// explored terrain 0-"cloudy" 1-explored
-E = {}
 // goblin caves 
 G = {}
 const simplex = new SimplexNoise(seed)
 const goblinCaves = new SimplexNoise(gSeed)
 
 
-let krat = 20
+let krat = 40
 
 let basePosition = { x: 0, y: 0 }
 
@@ -266,9 +291,11 @@ const explore = (x, y, radius, how = 'normal') => {
         }
         if (how === 'normal') {
           E[strcoords(i, j)] = 1
+          store('E', strcoords(i, j), 1)
         } else if (how === 'seaport') {
           if (T[strcoords(i, j)] === 0 || T[strcoords(i, j)] === 4) {
             E[strcoords(i, j)] = 1
+            store('E', strcoords(i, j), 1)
           }
         }
       }
@@ -289,6 +316,7 @@ while (true) {
     const x = getSimplex(simplex, f[0], f[1])
     if (x >= 0.12 && x < 0.4 && Math.floor((x) * 10000) % 3 !== 0) {
       B[strcoords(f[0], f[1])] = 6 // main base
+      store('B', strcoords(f[0], f[1]), 6)
       O[strcoords(f[0], f[1])] = 0
       found = true
       basePosition = {x:f[0], y:f[1]}
@@ -586,6 +614,7 @@ c.addEventListener('mousedown', e => {
           stone -= stonePitPrice.stone
           wood -= stonePitPrice.wood
           B[strcoords(cursor.x, cursor.y)] = placing
+          store('B', strcoords(cursor.x, cursor.y), placing)
         }
       }
     } else if (placing === 2) {
@@ -595,6 +624,7 @@ c.addEventListener('mousedown', e => {
           wood -= outpostPrice.wood
           explore(cursor.x, cursor.y, 4)
           B[strcoords(cursor.x, cursor.y)] = placing
+          store('B', strcoords(cursor.x, cursor.y), placing)
         }
       }
     } else if (placing === 3) {
@@ -604,6 +634,7 @@ c.addEventListener('mousedown', e => {
           stone -= sawmillPrice.stone
           wood -= sawmillPrice.wood
           B[strcoords(cursor.x, cursor.y)] = placing
+          store('B', strcoords(cursor.x, cursor.y), placing)
           O[strcoords(cursor.x, cursor.y)] = 0
         }
       }
@@ -615,6 +646,7 @@ c.addEventListener('mousedown', e => {
           explore(cursor.x, cursor.y, 5, 'seaport')
           explore(cursor.x, cursor.y, 1)
           B[strcoords(cursor.x, cursor.y)] = placing
+          store('B', strcoords(cursor.x, cursor.y), placing)
         }
       }
     }else if (placing === 5) {
@@ -624,6 +656,7 @@ c.addEventListener('mousedown', e => {
           wood -= housePrice.wood
           explore(cursor.x, cursor.y, 2)
           B[strcoords(cursor.x, cursor.y)] = placing
+          store('B', strcoords(cursor.x, cursor.y), placing)
         }
       }
     }
@@ -649,7 +682,7 @@ document.addEventListener('mousemove', e => {
 
 document.addEventListener('wheel', e => {
   if (e.deltaY !== 0) {
-    krat = Math.floor(krat + e.deltaY / 10)
+    krat = Math.floor(krat + e.deltaY / 20)
   }
   if (krat < 20) {
     krat = 20
