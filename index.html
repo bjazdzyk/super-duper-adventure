@@ -1,0 +1,57 @@
+<html><head><title>Game</title><style>body{
+	margin: 0;
+	overflow: hidden;
+}
+button{
+	position: fixed;
+	z-index: 1;
+
+}
+#home{
+	left: 1%;
+	top: 1%;
+	width: 30;
+	height: 30;
+}
+#shop{
+	right: 1%;
+	bottom: 5%;
+	width: 80;
+	height: 80;
+	background-color: #288000;
+	border-color: #288000;
+	border-width: 5px;
+	border-radius: 5px;
+	transition: background-color .2s;
+}
+#shop:hover{
+	background-color: #36ab00;
+}
+#stonePit{
+	left: 30px;
+	top: 70px;
+}
+#sawmill{
+	left: 250px;
+	top: 70px;
+}
+#outpost{
+	left: 470px;
+	top: 70px;
+}
+#seaport{
+	left: 690px;
+	top: 70px;
+}
+#house{
+	left: 910px;
+	top: 70px;
+}
+.buyButton{
+	width: 200px;
+	height: 100px;
+	font-size: 12px;
+	border-radius: 20px;
+	background-color: #b88939;
+	display: none;
+}</style><script defer="defer" src="ec10d430c810263c10b4.js"></script></head><body><canvas id="myCanvas" width="200" height="100"></canvas><button id="home"><i class="fas fa-home"></i></button> <button id="shop"><h1><i class="fas fa-shopping-cart"></i></h1></button> <button id="stonePit" class="buyButton"><h3>Stone Pit</h3><br>buy</button> <button id="sawmill" class="buyButton"><h3>Sawmill</h3><br>buy</button> <button id="outpost" class="buyButton"><h3>Outpost</h3><br>buy</button> <button id="seaport" class="buyButton"><h3>Seaport</h3><br>buy</button> <button id="house" class="buyButton"><h3>House</h3><br>buy</button></body></html>
