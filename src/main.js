@@ -124,10 +124,16 @@ const getData =(key, key2)=>{
   return JSON.parse(localStorage.getItem(key))[key2]
 }
 
-let data
-if(LS){
-  data = JSON.parse(storage.getItem('data'))
+
+const storageVersion = storage.getItem('storageVersion')
+if(storageVersion == '1'){
+  //
+}else{
+  storage.clear()
+  alert("Game has been updated since you last played it\nYour progress has been lost")
+  storage.setItem('storageVersion', '1')
 }
+
 
 let seed, gSeed, T, O, B, E, G
 
@@ -138,12 +144,14 @@ if(storage.seed){
   storage.setItem('seed', JSON.stringify(seed))
 }
 
+
 if(storage.gSeed){
   gSeed = JSON.parse(storage.getItem('gSeed'))
 }else{
   gSeed = Math.random()
   storage.setItem('gSeed', JSON.stringify(gSeed))
 }
+
 
 if(storage.E){
   E = JSON.parse(storage.getItem('E'))
@@ -152,6 +160,7 @@ if(storage.E){
   storage.setItem('E', JSON.stringify(E))
 }
 
+
 if(storage.B){
   B = JSON.parse(storage.getItem('B'))
 }else{
@@ -159,6 +168,37 @@ if(storage.B){
   storage.setItem('B', JSON.stringify(B))
 }
 
+
+let time
+let lastTime
+if(storage.time){
+  lastTime = JSON.parse(storage.getItem('time'))
+  time = Date.now()
+}else{
+  time = Date.now()
+  lastTime = Date.now()
+}
+
+if(!storage.woodIncreasing){
+  storage.setItem('woodIncreasing', '0')
+}
+if(!storage.stoneIncreasing){
+  storage.setItem('stoneIncreasing', '0')
+}
+
+
+if(!storage.wood){
+  storage.setItem('wood', '300')
+}
+if(!storage.woodLimit){
+  storage.setItem('woodLimit', '500')
+}
+if(!storage.stone){
+  storage.setItem('stone', '300')
+}
+if(!storage.stoneLimit){
+  storage.setItem('stoneLimit', '500')
+}
 
 // biomes 0-water 1-plains 2-mountains 4-beach
 T = {}
@@ -345,25 +385,29 @@ let mouseX, mouseY
 
 let a = _H / krat * 2
 
-let wood = 300
-const woodLimit = 500
-let stone = 300
-const stoneLimit = 500
+let wood = JSON.parse(storage.getItem('wood'))
+let woodLimit = JSON.parse(storage.getItem('woodLimit'))
+let stone = JSON.parse(storage.getItem('stone'))
+let stoneLimit = JSON.parse(storage.getItem('stoneLimit'))
+console.log(wood, stone, woodLimit, stoneLimit)
 
-let stoneIncreasing = 0
-let woodIncreasing = 0
-
-
-let time = Date.now()
-let lastTime = Date.now()
 const loop = (tick) => {
   window.requestAnimationFrame(loop)
   time = Date.now()
 
-  if (time - lastTime > 200) {
-    stone = Math.min(stoneLimit, stone + stoneIncreasing)
-    wood = Math.min(woodLimit, wood + woodIncreasing)
+  let lastTime = JSON.parse(storage.getItem('time'))
+  //console.log(time-lastTime)
+  if (time - lastTime > 100) {
+    const delta = time - lastTime
+    stone = Math.min(JSON.parse(storage.getItem('stoneLimit')), JSON.parse(storage.getItem('stone')) + JSON.parse(storage.getItem('stoneIncreasing'))*delta/200)
+    wood = Math.min(JSON.parse(storage.getItem('woodLimit')), JSON.parse(storage.getItem('wood')) + JSON.parse(storage.getItem('woodIncreasing'))*delta/200)
+    if(JSON.parse(storage.getItem('stone'))!=null && JSON.parse(storage.getItem('wood'))!=null){
+      storage.setItem('stone', JSON.stringify(stone))
+      storage.setItem('wood', JSON.stringify(wood))
+    }
+
     lastTime = time
+    storage.setItem('time', JSON.stringify(lastTime))
   }
 
   _W = window.innerWidth
@@ -610,9 +654,11 @@ c.addEventListener('mousedown', e => {
     if (placing === 1) {
       if (!B[strcoords(cursor.x, cursor.y)] && E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && !O[strcoords(cursor.x, cursor.y)]) {
         if (stone >= stonePitPrice.stone && wood >= stonePitPrice.wood) {
-          stoneIncreasing += 0.1
+          storage.setItem('stoneIncreasing', JSON.stringify(JSON.parse(storage.getItem('stoneIncreasing'))+0.1))
           stone -= stonePitPrice.stone
           wood -= stonePitPrice.wood
+          storage.setItem('stone', JSON.stringify(stone))
+          storage.setItem('wood', JSON.stringify(wood))
           B[strcoords(cursor.x, cursor.y)] = placing
           store('B', strcoords(cursor.x, cursor.y), placing)
         }
@@ -622,6 +668,8 @@ c.addEventListener('mousedown', e => {
         if (stone >= outpostPrice.stone && wood >= outpostPrice.wood) {
           stone -= outpostPrice.stone
           wood -= outpostPrice.wood
+          storage.setItem('stone', JSON.stringify(stone))
+          storage.setItem('wood', JSON.stringify(wood))
           explore(cursor.x, cursor.y, 4)
           B[strcoords(cursor.x, cursor.y)] = placing
           store('B', strcoords(cursor.x, cursor.y), placing)
@@ -630,9 +678,11 @@ c.addEventListener('mousedown', e => {
     } else if (placing === 3) {
       if (E[strcoords(cursor.x, cursor.y)] && O[strcoords(cursor.x, cursor.y)] === 1) {
         if (stone >= sawmillPrice.stone && wood >= sawmillPrice.wood) {
-          woodIncreasing += 0.1
+          storage.setItem('woodIncreasing', JSON.stringify(JSON.parse(storage.getItem('woodIncreasing'))+0.1))
           stone -= sawmillPrice.stone
           wood -= sawmillPrice.wood
+          storage.setItem('stone', JSON.stringify(stone))
+          storage.setItem('wood', JSON.stringify(wood))
           B[strcoords(cursor.x, cursor.y)] = placing
           store('B', strcoords(cursor.x, cursor.y), placing)
           O[strcoords(cursor.x, cursor.y)] = 0
@@ -654,6 +704,8 @@ c.addEventListener('mousedown', e => {
         if (stone >= housePrice.stone && wood >= housePrice.wood) {
           stone -= housePrice.stone
           wood -= housePrice.wood
+          storage.setItem('stone', JSON.stringify(stone))
+          storage.setItem('wood', JSON.stringify(wood))
           explore(cursor.x, cursor.y, 2)
           B[strcoords(cursor.x, cursor.y)] = placing
           store('B', strcoords(cursor.x, cursor.y), placing)
