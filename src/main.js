@@ -10,24 +10,12 @@ const drawHexagon = graphics.drawHexagon
 const drawObject = graphics.drawObject
 const drawBuilding = graphics.drawBuilding
 const drawGoblin = graphics.drawGoblin
-
 const c = document.getElementById('myCanvas')
 const ctx = c.getContext('2d')
-
 const homeButton = document.getElementById('home')
 const shopButton = document.getElementById('shop')
-const stonePitButton = document.getElementById('stonePit')
-const outpostButton = document.getElementById('outpost')
-const sawmillButton = document.getElementById('sawmill')
-const seaportButton = document.getElementById('seaport')
 
-const stonePitPrice = { wood: 30, stone: 40 }
-const outpostPrice = { wood: 100, stone: 120 }
-const sawmillPrice = { wood: 20, stone: 30 }
-const seaportPrice = { wood: 150, stone: 200 }
-const housePrice = { wood: 20, stone: 10 }
-
-//localStorage
+//localStorage compatibility
 let LS
 let storage = window.localStorage
 if(typeof(Storage) === undefined){
@@ -37,15 +25,15 @@ if(typeof(Storage) === undefined){
   LS = true
   storage = window.localStorage
 }
-
+//shop offers dictionary
 const shopOffers = [
   {
-    name: "stonePit",
+    name: "stonePit",//also html button id
     type: "building",
     num: 1,
-    left: 30,
-    width: 200,
-    price:stonePitPrice
+    left: 30, //position i shop
+    width: 200, //width in shop
+    price:{ wood: 30, stone: 40 }
   },
   {
     name: "sawmill",
@@ -53,7 +41,7 @@ const shopOffers = [
     num: 3,
     left: 250,
     width: 200,
-    price:sawmillPrice
+    price:{ wood: 20, stone: 30 }
   },
   {
     name: "outpost",
@@ -61,7 +49,7 @@ const shopOffers = [
     num: 2,
     left:470,
     width: 200,
-    price:outpostPrice
+    price:{ wood: 100, stone: 120 }
   },
   {
     name: "seaport",
@@ -69,7 +57,7 @@ const shopOffers = [
     num: 4,
     left: 690,
     width: 200,
-    price:seaportPrice
+    price:{ wood: 150, stone: 200 }
   },
   {
     name: "house",
@@ -77,11 +65,11 @@ const shopOffers = [
     num: 5,
     left: 910,
     width: 200,
-    price:housePrice
+    price:{ wood: 20, stone: 10 }
   }
 ]
 
-
+//sprawdza czy punkt jest w hexagonie
 const checkPointInHexagon = (x, y, s, cX, cY) => {
   if (pointWhichSide(x, y - s / 2, x + s / 2, y - s / 4, cX, cY) !== -1) { return false }
   if (pointWhichSide(x + s / 2, y - s / 4, x + s / 2, y, cX, cY) !== -1) { return false }
@@ -92,13 +80,16 @@ const checkPointInHexagon = (x, y, s, cX, cY) => {
   return true
 }
 
+//zamienia pozycję x, y z listy na pozycję na ekranie do renderowania
 const hexcoords = (x, y) => {
   return { x: (y - x), y: (y + x) }
 }
+//zamienia x, y na string (klucz w mapie)
 const strcoords = (x, y) => {
   return (x.toString() + ':' + y.toString())
 }
 
+//po której stronie prostej jest punkt (użyte w checkPointInhexagon) 
 const pointWhichSide = (x1, y1, x2, y2, x3, y3) => {
   if (y1 - y2 !== 0) {
     const x4 = (y3 - y1) * (x1 - x2) / (y1 - y2) + x1
@@ -115,26 +106,29 @@ const pointWhichSide = (x1, y1, x2, y2, x3, y3) => {
     }
   }
 }
+
+//dodanie małego elementu do LS (np. storage.setItem -> zmienia wartość dla klucza 'key'; store zmienia wartość dla 'key.key2')
 const store =(key, key2, value)=>{
   const a = {}
   a[key2] = value
   localStorage.setItem(key, JSON.stringify(Object.assign({}, JSON.parse(localStorage.getItem(key)), a)))
 }
+//odpowiednik store dla odbierania danych
 const getData =(key, key2)=>{
   return JSON.parse(localStorage.getItem(key))[key2]
 }
 
-
+//rozwiązanie dla konfliktów między commitami
 const storageVersion = storage.getItem('storageVersion')
 if(storageVersion == '1'){
-  //
+  //wartość storageVersion będzie zmieniana przy kolejnych commitach
 }else{
   storage.clear()
   alert("Game has been updated since you last played it\nYour progress has been lost")
   storage.setItem('storageVersion', '1')
 }
 
-
+//odczytywanie zapisanych danych
 let seed, gSeed, T, O, B, E, G
 
 if(storage.seed){
@@ -144,14 +138,12 @@ if(storage.seed){
   storage.setItem('seed', JSON.stringify(seed))
 }
 
-
 if(storage.gSeed){
   gSeed = JSON.parse(storage.getItem('gSeed'))
 }else{
   gSeed = Math.random()
   storage.setItem('gSeed', JSON.stringify(gSeed))
 }
-
 
 if(storage.E){
   E = JSON.parse(storage.getItem('E'))
@@ -160,7 +152,6 @@ if(storage.E){
   storage.setItem('E', JSON.stringify(E))
 }
 
-
 if(storage.B){
   B = JSON.parse(storage.getItem('B'))
 }else{
@@ -168,14 +159,12 @@ if(storage.B){
   storage.setItem('B', JSON.stringify(B))
 }
 
-
 if(storage.O){
   O = JSON.parse(storage.getItem('O'))
 }else{
   O = {}// objects 1-forest 3-goblin
   storage.setItem('O', JSON.stringify(O))
 }
-
 
 let time
 let lastTime
@@ -193,7 +182,6 @@ if(!storage.woodIncreasing){
 if(!storage.stoneIncreasing){
   storage.setItem('stoneIncreasing', '0')
 }
-
 
 if(!storage.wood){
   storage.setItem('wood', '300')
@@ -215,15 +203,17 @@ G = {}
 const simplex = new SimplexNoise(seed)
 const goblinCaves = new SimplexNoise(gSeed)
 
-
+//początkowy zoom
 let krat = 40
 
 let basePosition = { x: 0, y: 0 }
 
+//dla uproszczenia
 const getSimplex = (S, x, y, z = 0) => {
   return (S.noise3D(x / 12, y / 12, z))
 }
 
+//zwraca ilość obiektów w promieniu
 const nearObjects = (x, y, object, radius) => {
   let count = 0
   for (let i = x - radius; i <= x + radius; i++) {
@@ -248,6 +238,7 @@ const nearObjects = (x, y, object, radius) => {
   return count
 }
 
+//generowanie terenu x-wartość simplexnoisa
 const generationLogics = (x, X, Y) => {
   const R = {}
   if (x > 0) {
@@ -281,6 +272,7 @@ const generationLogics = (x, X, Y) => {
   return R
 }
 
+//wywołanie generacji 1 hexa
 const generateCell = (x, y) => {
   G[strcoords(x, y)] = Math.floor(getSimplex(goblinCaves, x, y, getSimplex(simplex, x, y)*5)*10)
   T[strcoords(x, y)] = generationLogics(getSimplex(simplex, x, y), x, y).T
@@ -291,16 +283,7 @@ const generateCell = (x, y) => {
   }
 }
 
-const generateStartingTerrain = () => {
-  for (let i = basePosition.x - Math.floor(krat / 2); i < basePosition.x + Math.floor(krat / 2); i++) {
-    for (let j = basePosition.y - Math.floor(krat / 2); j < basePosition.y + Math.floor(krat / 2); j++) {
-      generateCell(i, j)
-    }
-  }
-}
-
-generateStartingTerrain()
-
+//zwraca liczbę hexów z danym biomem w promieniu
 const nearBiomes = (x, y, biome, radius) => {
   let count = 0
   for (let i = x - radius; i <= x + radius; i++) {
@@ -317,6 +300,8 @@ const nearBiomes = (x, y, biome, radius) => {
   }
   return count
 }
+
+//zwraca liczbę budynków w promieniu
 const nearBuildings = (x, y, building, radius) => {
   let count = 0
   for (let i = x - radius; i <= x + radius; i++) {
@@ -331,6 +316,7 @@ const nearBuildings = (x, y, building, radius) => {
   return count
 }
 
+//oznaczenie terenu jako zexplorowany w promieniu (how="seaport" exploruje tylko wodę i plaże)
 const explore = (x, y, radius, how = 'normal') => {
   for (let i = x - radius; i <= x + radius; i++) {
     for (let j = y - radius; j <= y + radius; j++) {
@@ -351,8 +337,9 @@ const explore = (x, y, radius, how = 'normal') => {
     }
   }
 }
-let l = 1
 
+//szukanie odpowiedniego miejsca na bazę
+let l = 1
 while (true) {
   let found = false
   l++
@@ -376,36 +363,48 @@ while (true) {
     break
   }
 }
-
 explore(basePosition.x, basePosition.y, 3)
 
+//początkowa pozycja kamery (coordy w tablicy)
 const focus = { x: basePosition.x, y: basePosition.y - 1 }
+//pozycja kursora (coordy w tablicy)
 let cursor = { x: 'nope', y: 'nope' }
+//offset kamery(coordy w tablicy)
 const scrollingOffset = { x: 0, y: 0 }
 
+//offset kamery(coordy wzgl ekranu)
+let offsetW, offsetH
+
+//wymiary okna
 let _W = window.innerWidth
 let _H = window.innerHeight
+
 let Clicked = false
 let clickX, clickY
 let toggleShop = 0
-let offsetW, offsetH
-let placing = 0
 let mouseX, mouseY
 
+//czy jest stawiany budynek
+let placing = 0
+
+// 1/2 szerokości hexa
 let a = _H / krat * 2
 
+//surowce, limity
 let wood = JSON.parse(storage.getItem('wood'))
 let woodLimit = JSON.parse(storage.getItem('woodLimit'))
 let stone = JSON.parse(storage.getItem('stone'))
 let stoneLimit = JSON.parse(storage.getItem('stoneLimit'))
-console.log(wood, stone, woodLimit, stoneLimit)
 
 const loop = (tick) => {
   window.requestAnimationFrame(loop)
+  //tick teraz
   time = Date.now()
 
+  //tick przy ostatnim dodawaniu surowców
   let lastTime = JSON.parse(storage.getItem('time'))
-  //console.log(time-lastTime)
+
+  //zwiększanie surowców co 1/10 sek. o stoneIncreasing, woodIncreasing
   if (time - lastTime > 100) {
     const delta = time - lastTime
     stone = Math.min(JSON.parse(storage.getItem('stoneLimit')), JSON.parse(storage.getItem('stone')) + JSON.parse(storage.getItem('stoneIncreasing'))*delta/200)
@@ -415,238 +414,259 @@ const loop = (tick) => {
       storage.setItem('wood', JSON.stringify(wood))
     }
 
+    //zapisywanie ostatniego ticka w LS zeby surowce zwiększały sie gdy nie jesteś aktywny
     lastTime = time
     storage.setItem('time', JSON.stringify(lastTime))
   }
 
+  //aktualizacja wymiarów
   _W = window.innerWidth
   _H = window.innerHeight
   a = _H / krat * 2
-
   offsetH = _H / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).y - a * 3 / 4
   offsetW = _W / 2 - a * hexcoords(focus.x + scrollingOffset.x, focus.y + scrollingOffset.y).x - a
-
   c.width = _W
   c.height = _H
 
   if (toggleShop === 1) {
-    // shop gui
-    // clear screen
-    ctx.fillStyle = '#699129'
-    ctx.fillRect(0, 0, _W, _H)
+    // renderowanie sklepu
+    {
+      // clear screen
+      ctx.fillStyle = '#699129'
+      ctx.fillRect(0, 0, _W, _H)
 
-    ctx.fillStyle = '#78a62e'
-    ctx.beginPath()
-    roundRect(ctx, 20, 20, _W - 40, _H - 40, 20)
-    ctx.closePath()
-    ctx.fill()
+      ctx.fillStyle = '#78a62e'
+      ctx.beginPath()
+      roundRect(ctx, 20, 20, _W - 40, _H - 40, 20)
+      ctx.closePath()
+      ctx.fill()
 
-    // wood storage
-    ctx.beginPath()
-    roundRect(ctx, _W - 230, 30, wood / woodLimit * 200, 30, 10)
-    ctx.closePath()
-    ctx.fillStyle = '#9c772d'
-    ctx.fill()
-    ctx.beginPath()
-    roundRect(ctx, _W - 230, 30, 200, 30, 10)
-    ctx.closePath()
-    ctx.lineWidth = 2
-    ctx.stroke()
-    drawObject(ctx, _W - 215, 50, 25, 1)
-    ctx.font = '15px Courier'
-    ctx.fillStyle = 'black'
-    ctx.fillText(Math.floor(wood).toString(), _W - 200, 50)
-    // stone storage
-    ctx.beginPath()
-    roundRect(ctx, _W - 440, 30, stone / stoneLimit * 200, 30, 10)
-    ctx.closePath()
-    ctx.fillStyle = '#525252'
-    ctx.fill()
-    ctx.beginPath()
-    roundRect(ctx, _W - 440, 30, 200, 30, 10)
-    ctx.closePath()
-    ctx.lineWidth = 2
-    ctx.stroke()
-    ctx.font = '15px Courier'
-    ctx.fillStyle = 'black'
-    ctx.fillText(Math.floor(stone).toString(), _W - 410, 50)
-
-    document.getElementById('home').style.display = 'none'
-    for(let offer of shopOffers){
-      const width = offer.width
-      const height = 100
-      const offsetX = offer.left
-      let offsetY = 70
-      document.getElementById(offer.name).style.display = 'block'
-      document.getElementById(offer.name).style.width = offer.width
-      if(offer.type == "building"){
-        if(offer.num == 4){
-          drawBuilding(ctx, offsetX+width/2, offsetY+height*1.75+10, height*4/3, offer.num)
-        }else{
-          drawBuilding(ctx, offsetX+width/2, offsetY+height*2+10, height*4/3, offer.num)
-        }
-      }
-      ctx.font = "30px Courier New";
-      ctx.strokeStyle = "black"
-      ctx.lineWidth = 1
-
+      // wood storage
+      ctx.beginPath()
+      roundRect(ctx, _W - 230, 30, wood / woodLimit * 200, 30, 10)
+      ctx.closePath()
       ctx.fillStyle = '#9c772d'
-      ctx.fillText(offer.price.wood.toString(), offsetX, offsetY + height * 2 + 75)
-      ctx.strokeText(offer.price.wood.toString(), offsetX, offsetY + height * 2 + 75)
+      ctx.fill()
+      ctx.beginPath()
+      roundRect(ctx, _W - 230, 30, 200, 30, 10)
+      ctx.closePath()
+      ctx.lineWidth = 2
+      ctx.stroke()
+      drawObject(ctx, _W - 215, 50, 25, 1)
+      ctx.font = '15px Courier'
+      ctx.fillStyle = 'black'
+      ctx.fillText(Math.floor(wood).toString(), _W - 200, 50)
+
+      // stone storage
+      ctx.beginPath()
+      roundRect(ctx, _W - 440, 30, stone / stoneLimit * 200, 30, 10)
+      ctx.closePath()
       ctx.fillStyle = '#525252'
-      ctx.fillText(offer.price.stone.toString(), offsetX+75, offsetY + height * 2 + 75)
-      ctx.strokeText(offer.price.stone.toString(), offsetX+75, offsetY + height * 2 + 75)
+      ctx.fill()
+      ctx.beginPath()
+      roundRect(ctx, _W - 440, 30, 200, 30, 10)
+      ctx.closePath()
+      ctx.lineWidth = 2
+      ctx.stroke()
+      ctx.font = '15px Courier'
+      ctx.fillStyle = 'black'
+      ctx.fillText(Math.floor(stone).toString(), _W - 410, 50)
+
+      document.getElementById('home').style.display = 'none'
+      for(let offer of shopOffers){
+        const width = offer.width
+        const height = 100
+        const offsetX = offer.left
+        let offsetY = 70
+        document.getElementById(offer.name).style.display = 'block'
+        document.getElementById(offer.name).style.width = offer.width
+        if(offer.type == "building"){
+          if(offer.num == 4){
+            drawBuilding(ctx, offsetX+width/2, offsetY+height*1.75+10, height*4/3, offer.num)
+          }else{
+            drawBuilding(ctx, offsetX+width/2, offsetY+height*2+10, height*4/3, offer.num)
+          }
+        }
+        ctx.font = "30px Courier New";
+        ctx.strokeStyle = "black"
+        ctx.lineWidth = 1
+
+        ctx.fillStyle = '#9c772d'
+        ctx.fillText(offer.price.wood.toString(), offsetX, offsetY + height * 2 + 75)
+        ctx.strokeText(offer.price.wood.toString(), offsetX, offsetY + height * 2 + 75)
+        ctx.fillStyle = '#525252'
+        ctx.fillText(offer.price.stone.toString(), offsetX+75, offsetY + height * 2 + 75)
+        ctx.strokeText(offer.price.stone.toString(), offsetX+75, offsetY + height * 2 + 75)
+      }
     }
   } else if (toggleShop === 0) {
-    document.getElementById('home').style.display = 'block'
-    for(const offer of shopOffers){
-      document.getElementById(offer.name).style.display = 'none'
-    }
-    // clear screen
-    ctx.fillStyle = '#0000FF'
-    ctx.fillRect(0, 0, _W, _H)
-    // render Tarrain
-    for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3) + 1; i++) {
-      for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3) + 1; j++) {
-        if (Clicked && checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, clickX, clickY)) {
-          if (cursor.x === i && cursor.y === j) {
-            cursor = { x: 'nope', y: 'nope' }
-          } else {
-            cursor.x = i
-            cursor.y = j
-            console.log(i, j)
-          }
-          Clicked = false
-        }
+    //renderowanie gry
+    {
+      document.getElementById('home').style.display = 'block'
 
-        if (offsetW + a * hexcoords(i, j).x + a > 0 && offsetH + a * hexcoords(i, j).y + a > 0 && offsetW + a * hexcoords(i, j).x - a < _W && offsetH + a * hexcoords(i, j).y - a < _H) {
-          if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
-            generateCell(i, j)
-          }
-          if (E[strcoords(i, j)] === 1) {
-            drawHexagon(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, T[strcoords(i, j)])
-            // if((G[strcoords(i, j)]) >= 0){
-            //   drawHexagon(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, 'brown')
-            // }//tunnels
-            drawObject(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
-            drawBuilding(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, B[strcoords(i, j)])
-          } else {
-            if (T[strcoords(i, j)] <= 0) {
-              drawHexagon(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
+      //ukrycie przyciskow sklepu
+      for(const offer of shopOffers){
+        document.getElementById(offer.name).style.display = 'none'
+      }
+
+      // clear screen
+      ctx.fillStyle = '#0000FF'
+      ctx.fillRect(0, 0, _W, _H)
+
+      // renderowanie terenu  for po hexach
+      for (let i = Math.floor(focus.x + scrollingOffset.x) - Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3); i <= Math.floor(focus.x + scrollingOffset.x) + Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3) + 1; i++) {
+        for (let j = Math.floor(focus.y + scrollingOffset.y) - Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3); j <= Math.floor(focus.y + scrollingOffset.y) + Math.floor(Math.max(_W, _H) / Math.min(_W, _H) * krat / 3) + 1; j++) {
+
+          //kliknięcie w hexa
+          if (Clicked && checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, clickX, clickY)) {
+            if (cursor.x === i && cursor.y === j) {
+              cursor = { x: 'nope', y: 'nope' }
             } else {
-              drawHexagon(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#cccccc')
+              cursor.x = i
+              cursor.y = j
+              console.log(i, j)
+            }
+            Clicked = false
+          }
+
+          //sprawdzanie czy hex na ekranie
+          if (offsetW + a * hexcoords(i, j).x + a > 0 && offsetH + a * hexcoords(i, j).y + a > 0 && offsetW + a * hexcoords(i, j).x - a < _W && offsetH + a * hexcoords(i, j).y - a < _H) {
+
+            if (T[strcoords(i, j)] === undefined || O[strcoords(i, j)] === undefined) {
+              generateCell(i, j)
+            }
+            if (E[strcoords(i, j)] === 1) {
+              //zexplorowany teren
+              drawHexagon(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, T[strcoords(i, j)])
+              // if((G[strcoords(i, j)]) >= 0){
+              //   drawHexagon(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, 'brown')
+              // }//rysowanie tuneli goblinów 
+              drawObject(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, O[strcoords(i, j)])
+              drawBuilding(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a, B[strcoords(i, j)])
+            } else {
+              //chmurki
+              if (T[strcoords(i, j)] <= 0) {
+                drawHexagon(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#e0e0e0')
+              } else {
+                drawHexagon(ctx, offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, '#cccccc')
+              }
+            }
+          }
+          // kursor do myszki przy stawianiu
+          if (placing !== 0) {
+            if (checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, mouseX, mouseY)) {
+              cursor.x = i
+              cursor.y = j
             }
           }
         }
-        // placing cursor while moving
-        if (placing !== 0) {
-          if (checkPointInHexagon(offsetW + a * hexcoords(i, j).x, offsetH + a * hexcoords(i, j).y, a * 2, mouseX, mouseY)) {
-            cursor.x = i
-            cursor.y = j
+      }
+      //odznaczanie kursora gdzy za ekranem
+      if (offsetW + a * hexcoords(cursor.x, cursor.y).x + a < 0 || offsetW + a * hexcoords(cursor.x, cursor.y).x - a > _W || offsetH + a * hexcoords(cursor.x, cursor.y).y + a / 2 < 0 || offsetH + a * hexcoords(cursor.x, cursor.y).y - a > _H) {
+        cursor = { x: 'nope', y: 'nope' }
+      }
+      //renderowanie kursora
+      if (placing === 0) {
+        if (cursor.x !== 'nope' && cursor.y !== 'nope') {
+          // draw cursor
+          drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
+
+          // cell info
+          ctx.beginPath()
+          roundRect(ctx, _W * 0.99 - 200, _H * 0.03 + 60, 200, _H * 0.3, 10)
+          ctx.closePath()
+          ctx.fillStyle = '#a6935a'
+          ctx.fill()
+          ctx.strokeStyle = 'black'
+          ctx.lineWidth = 2
+          ctx.stroke()
+
+          ctx.lineWidth = 1
+          //drawBuilding(ctx, _W * 0.99 - 100, _H * 0.06 + 160, _H * 0.3, 5)
+
+        }
+      } else {
+        // miganie i kolor kursora (zielony/czerwony)
+        if (Math.floor(time) % 800 < 700) {
+          if (placing === 1) {
+            if (!B[strcoords(cursor.x, cursor.y)] && E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && !O[strcoords(cursor.x, cursor.y)]) {
+              drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+            } else {
+              drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+            }
+          } else if (placing === 2) {
+            if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && !O[strcoords(cursor.x, cursor.y)]) {
+              drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+            } else {
+              drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+            }
+          } else if (placing === 3) {
+            if (E[strcoords(cursor.x, cursor.y)] && O[strcoords(cursor.x, cursor.y)] === 1) {
+              drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+            } else {
+              drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+            }
+          } else if (placing === 4) {
+            if (E[strcoords(cursor.x, cursor.y)] && nearBiomes(cursor.x, cursor.y, 0, 1) > 0 && T[strcoords(cursor.x, cursor.y)] && !O[strcoords(cursor.x, cursor.y)]) {
+              drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+            } else {
+              drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+            }
+          }else if(placing === 5){
+            if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] && O[strcoords(cursor.x, cursor.y)] === 0 && (nearBuildings(cursor.x, cursor.y, 5, 1)>0||nearBuildings(cursor.x, cursor.y, 6, 1)>0) && !B[strcoords(cursor.x, cursor.y)]) {
+              console.log(nearObjects(cursor.x, cursor.y, 2, 1), nearBuildings(cursor.x, cursor.y, 5, 1))
+              drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
+            } else {
+              drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
+            }
           }
         }
       }
+      // wood storage
+      ctx.strokeStyle = 'black'
+      ctx.beginPath()
+      roundRect(ctx, _W * 0.99 - 200, _H * 0.01, wood / woodLimit * 200, 30, 10)
+      ctx.closePath()
+      ctx.fillStyle = '#9c772d'
+      ctx.fill()
+      ctx.beginPath()
+      roundRect(ctx, _W * 0.99 - 200, _H * 0.01, 200, 30, 10)
+      ctx.closePath()
+      ctx.lineWidth = 2
+      ctx.stroke()
+      drawObject(ctx, _W * 0.99 - 185, _H * 0.01 + 20, 25, 1)
+      ctx.font = '15px Courier'
+      ctx.fillStyle = 'black'
+      ctx.fillText(Math.floor(wood.toString()), _W * 0.99 - 170, _H * 0.01 + 20)
+
+      // stone storage
+      ctx.beginPath()
+      roundRect(ctx, _W * 0.99 - 200, _H * 0.02 + 30, stone / stoneLimit * 200, 30, 10)
+      ctx.closePath()
+      ctx.fillStyle = '#525252'
+      ctx.fill()
+      ctx.beginPath()
+      roundRect(ctx, _W * 0.99 - 200, _H * 0.02 + 30, 200, 30, 10)
+      ctx.closePath()
+      ctx.lineWidth = 2
+      ctx.stroke()
+      ctx.font = '15px Courier'
+      ctx.fillStyle = 'black'
+      ctx.fillText(Math.floor(stone.toString()), _W * 0.99 - 170, _H * 0.02 + 50)
+
+      TWEEN.update(tick)
     }
-    if (offsetW + a * hexcoords(cursor.x, cursor.y).x + a < 0 || offsetW + a * hexcoords(cursor.x, cursor.y).x - a > _W || offsetH + a * hexcoords(cursor.x, cursor.y).y + a / 2 < 0 || offsetH + a * hexcoords(cursor.x, cursor.y).y - a > _H) {
-      cursor = { x: 'nope', y: 'nope' }
-    }
-
-    if (placing === 0) {
-      if (cursor.x !== 'nope' && cursor.y !== 'nope') {
-        // draw cursor
-        drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'black', 'cursor')
-
-        // cell info
-        ctx.beginPath()
-        roundRect(ctx, _W * 0.99 - 200, _H * 0.03 + 60, 200, _H * 0.3, 10)
-        ctx.closePath()
-        ctx.fillStyle = '#a6935a'
-        ctx.fill()
-        ctx.strokeStyle = 'black'
-        ctx.lineWidth = 2
-        ctx.stroke()
-
-        ctx.lineWidth = 1
-        //drawBuilding(ctx, _W * 0.99 - 100, _H * 0.06 + 160, _H * 0.3, 5)
-
-      }
-    } else {
-      // draw cursor (green/red)
-      if (Math.floor(time) % 800 < 700) {
-        if (placing === 1) {
-          if (!B[strcoords(cursor.x, cursor.y)] && E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && !O[strcoords(cursor.x, cursor.y)]) {
-            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
-          } else {
-            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
-          }
-        } else if (placing === 2) {
-          if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && !O[strcoords(cursor.x, cursor.y)]) {
-            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
-          } else {
-            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
-          }
-        } else if (placing === 3) {
-          if (E[strcoords(cursor.x, cursor.y)] && O[strcoords(cursor.x, cursor.y)] === 1) {
-            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
-          } else {
-            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
-          }
-        } else if (placing === 4) {
-          if (E[strcoords(cursor.x, cursor.y)] && nearBiomes(cursor.x, cursor.y, 0, 1) > 0 && T[strcoords(cursor.x, cursor.y)] && !O[strcoords(cursor.x, cursor.y)]) {
-            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
-          } else {
-            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
-          }
-        }else if(placing === 5){
-          if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] && O[strcoords(cursor.x, cursor.y)] === 0 && (nearBuildings(cursor.x, cursor.y, 5, 1)>0||nearBuildings(cursor.x, cursor.y, 6, 1)>0) && !B[strcoords(cursor.x, cursor.y)]) {
-            console.log(nearObjects(cursor.x, cursor.y, 2, 1), nearBuildings(cursor.x, cursor.y, 5, 1))
-            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'lightgreen', 'cursor')
-          } else {
-            drawHexagon(ctx, offsetW + a * hexcoords(cursor.x, cursor.y).x, offsetH + a * hexcoords(cursor.x, cursor.y).y, a * 2, 'red', 'cursor')
-          }
-        }
-      }
-    }
-    // wood storage
-    ctx.strokeStyle = 'black'
-    ctx.beginPath()
-    roundRect(ctx, _W * 0.99 - 200, _H * 0.01, wood / woodLimit * 200, 30, 10)
-    ctx.closePath()
-    ctx.fillStyle = '#9c772d'
-    ctx.fill()
-    ctx.beginPath()
-    roundRect(ctx, _W * 0.99 - 200, _H * 0.01, 200, 30, 10)
-    ctx.closePath()
-    ctx.lineWidth = 2
-    ctx.stroke()
-    drawObject(ctx, _W * 0.99 - 185, _H * 0.01 + 20, 25, 1)
-    ctx.font = '15px Courier'
-    ctx.fillStyle = 'black'
-    ctx.fillText(Math.floor(wood.toString()), _W * 0.99 - 170, _H * 0.01 + 20)
-    // stone storage
-    ctx.beginPath()
-    roundRect(ctx, _W * 0.99 - 200, _H * 0.02 + 30, stone / stoneLimit * 200, 30, 10)
-    ctx.closePath()
-    ctx.fillStyle = '#525252'
-    ctx.fill()
-    ctx.beginPath()
-    roundRect(ctx, _W * 0.99 - 200, _H * 0.02 + 30, 200, 30, 10)
-    ctx.closePath()
-    ctx.lineWidth = 2
-    ctx.stroke()
-    ctx.font = '15px Courier'
-    ctx.fillStyle = 'black'
-    ctx.fillText(Math.floor(stone.toString()), _W * 0.99 - 170, _H * 0.02 + 50)
-
-    TWEEN.update(tick)
   }
 }
-
+//zmienne do przeciągania myszką
 let isDragging = false
 let deltaX = 0
 let deltaY = 0
 let lastX = 0
 let lastY = 0
+
+
+//eventy
 document.addEventListener('mouseup', e => {
   if (e.button === 2) {
     isDragging = false
@@ -660,23 +680,28 @@ c.addEventListener('mousedown', e => {
     lastY = e.clientY
     isDragging = true
   } else if (placing !== 0) {
+
+    //brzydki kod do poprawienia
+    //stawianie budynków
+
+    //stonePit
     if (placing === 1) {
       if (!B[strcoords(cursor.x, cursor.y)] && E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && !O[strcoords(cursor.x, cursor.y)]) {
-        if (stone >= stonePitPrice.stone && wood >= stonePitPrice.wood) {
-          storage.setItem('stoneIncreasing', JSON.stringify(JSON.parse(storage.getItem('stoneIncreasing'))+0.01))
-          stone -= stonePitPrice.stone
-          wood -= stonePitPrice.wood
+        if (stone >= shopOffers[0].price.stone && wood >= shopOffers[0].price.wood) {
+          storage.setItem('stoneIncreasing', JSON.stringify(JSON.parse(storage.getItem('stoneIncreasing'))+0.02))
+          stone -= shopOffers[0].price.stone
+          wood -= shopOffers[0].price.wood
           storage.setItem('stone', JSON.stringify(stone))
           storage.setItem('wood', JSON.stringify(wood))
           B[strcoords(cursor.x, cursor.y)] = placing
           store('B', strcoords(cursor.x, cursor.y), placing)
         }
       }
-    } else if (placing === 2) {
+    } else if (placing === 2) {//outpost
       if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] === 2 && !O[strcoords(cursor.x, cursor.y)]) {
-        if (stone >= outpostPrice.stone && wood >= outpostPrice.wood) {
-          stone -= outpostPrice.stone
-          wood -= outpostPrice.wood
+        if (stone >= shopOffers[2].price.stone && wood >= shopOffers[2].price.wood) {
+          stone -= shopOffers[2].price.stone
+          wood -= shopOffers[2].price.wood
           storage.setItem('stone', JSON.stringify(stone))
           storage.setItem('wood', JSON.stringify(wood))
           explore(cursor.x, cursor.y, 4)
@@ -684,12 +709,12 @@ c.addEventListener('mousedown', e => {
           store('B', strcoords(cursor.x, cursor.y), placing)
         }
       }
-    } else if (placing === 3) {
+    } else if (placing === 3) {//sawmill
       if (E[strcoords(cursor.x, cursor.y)] && O[strcoords(cursor.x, cursor.y)] === 1) {
-        if (stone >= sawmillPrice.stone && wood >= sawmillPrice.wood) {
-          storage.setItem('woodIncreasing', JSON.stringify(JSON.parse(storage.getItem('woodIncreasing'))+0.01))
-          stone -= sawmillPrice.stone
-          wood -= sawmillPrice.wood
+        if (stone >= shopOffers[1].price.stone && wood >= shopOffers[1].price.wood) {
+          storage.setItem('woodIncreasing', JSON.stringify(JSON.parse(storage.getItem('woodIncreasing'))+0.02))
+          stone -= shopOffers[1].price.stone
+          wood -= shopOffers[1].price.wood
           storage.setItem('stone', JSON.stringify(stone))
           storage.setItem('wood', JSON.stringify(wood))
           B[strcoords(cursor.x, cursor.y)] = placing
@@ -698,11 +723,11 @@ c.addEventListener('mousedown', e => {
           store('O', strcoords(cursor.x, cursor.y), '0')
         }
       }
-    } else if (placing === 4) {
+    } else if (placing === 4) {//seaport
       if (E[strcoords(cursor.x, cursor.y)] && nearBiomes(cursor.x, cursor.y, 0, 1) > 0 && T[strcoords(cursor.x, cursor.y)] && !O[strcoords(cursor.x, cursor.y)] && !B[strcoords(cursor.x, cursor.y)]) {
-        if (stone >= seaportPrice.stone && wood >= seaportPrice.wood) {
-          stone -= seaportPrice.stone
-          wood -= seaportPrice.wood
+        if (stone >= shopOffers[3].price.stone && wood >= shopOffers[3].price.wood) {
+          stone -= shopOffers[3].price.stone
+          wood -= shopOffers[3].price.wood
           storage.setItem('stone', JSON.stringify(stone))
           storage.setItem('wood', JSON.stringify(wood))
           explore(cursor.x, cursor.y, 5, 'seaport')
@@ -711,11 +736,11 @@ c.addEventListener('mousedown', e => {
           store('B', strcoords(cursor.x, cursor.y), placing)
         }
       }
-    }else if (placing === 5) {
+    }else if (placing === 5) {//house
       if (E[strcoords(cursor.x, cursor.y)] && T[strcoords(cursor.x, cursor.y)] && !O[strcoords(cursor.x, cursor.y)] && (nearBuildings(cursor.x, cursor.y, 5, 1)>0 || nearBuildings(cursor.x, cursor.y, 6, 1)>0) && !B[strcoords(cursor.x, cursor.y)]) {
-        if (stone >= housePrice.stone && wood >= housePrice.wood) {
-          stone -= housePrice.stone
-          wood -= housePrice.wood
+        if (stone >= shopOffers[4].price.stone && wood >= shopOffers[4].price.wood) {
+          stone -= shopOffers[4].price.stone
+          wood -= shopOffers[4].price.wood
           storage.setItem('stone', JSON.stringify(stone))
           storage.setItem('wood', JSON.stringify(wood))
           explore(cursor.x, cursor.y, 2)
@@ -756,11 +781,9 @@ document.addEventListener('wheel', e => {
   }
 })
 
-document.addEventListener('contextmenu', e => {
-  e.preventDefault()
-  return false
-}, false)
 
+
+//soczyste przejście do bazy początkowej
 homeButton.addEventListener('mousedown', e => {
   if (!(scrollingOffset.x === 0 && scrollingOffset.y === 0)) {
     new TWEEN.Tween(scrollingOffset)
@@ -781,6 +804,7 @@ homeButton.addEventListener('mousedown', e => {
   }
 })
 
+//klikanie ofert w sklepie
 for(const offer of shopOffers){
   document.getElementById(offer.name).addEventListener('click', e => {
     if (stone >= offer.price.stone && wood >= offer.price.wood) {
