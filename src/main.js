@@ -814,6 +814,11 @@ for(const offer of shopOffers){
   })
 }
 
+document.addEventListener('contextmenu', e => {
+  e.preventDefault()
+  return false
+}, false)
+
 shopButton.addEventListener('click', e => {
   toggleShop = (toggleShop + 1) % 2
 })
