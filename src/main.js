@@ -663,7 +663,7 @@ c.addEventListener('mousedown', e => {
     if (placing === 1) {
       if (!B[strcoords(cursor.x, cursor.y)] && E[strcoords(cursor.x, cursor.y)] && (T[strcoords(cursor.x, cursor.y)] === 1 || T[strcoords(cursor.x, cursor.y)] === 2) && !O[strcoords(cursor.x, cursor.y)]) {
         if (stone >= stonePitPrice.stone && wood >= stonePitPrice.wood) {
-          storage.setItem('stoneIncreasing', JSON.stringify(JSON.parse(storage.getItem('stoneIncreasing'))+0.1))
+          storage.setItem('stoneIncreasing', JSON.stringify(JSON.parse(storage.getItem('stoneIncreasing'))+0.01))
           stone -= stonePitPrice.stone
           wood -= stonePitPrice.wood
           storage.setItem('stone', JSON.stringify(stone))
@@ -687,7 +687,7 @@ c.addEventListener('mousedown', e => {
     } else if (placing === 3) {
       if (E[strcoords(cursor.x, cursor.y)] && O[strcoords(cursor.x, cursor.y)] === 1) {
         if (stone >= sawmillPrice.stone && wood >= sawmillPrice.wood) {
-          storage.setItem('woodIncreasing', JSON.stringify(JSON.parse(storage.getItem('woodIncreasing'))+0.1))
+          storage.setItem('woodIncreasing', JSON.stringify(JSON.parse(storage.getItem('woodIncreasing'))+0.01))
           stone -= sawmillPrice.stone
           wood -= sawmillPrice.wood
           storage.setItem('stone', JSON.stringify(stone))
