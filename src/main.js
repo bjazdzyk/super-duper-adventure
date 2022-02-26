@@ -169,6 +169,14 @@ if(storage.B){
 }
 
 
+if(storage.O){
+  O = JSON.parse(storage.getItem('O'))
+}else{
+  O = {}// objects 1-forest 3-goblin
+  storage.setItem('O', JSON.stringify(O))
+}
+
+
 let time
 let lastTime
 if(storage.time){
@@ -202,8 +210,6 @@ if(!storage.stoneLimit){
 
 // biomes 0-water 1-plains 2-mountains 4-beach
 T = {}
-// objects 1-forest 3-goblin
-O = {}
 // goblin caves 
 G = {}
 const simplex = new SimplexNoise(seed)
@@ -255,10 +261,13 @@ const generationLogics = (x, X, Y) => {
     if (x >= 0 && x < 0.125) {
       R.T = 4 // beach
     }
-
-    if (x  >= 0.125 && x < 0.5 && Math.floor(x * 10000) % 3 === 0) {
-      R.O = 1 // forest
-    } else {
+    if(B[strcoords(X, Y)] === undefined){
+      if (x  >= 0.125 && x < 0.5 && Math.floor(x * 10000) % 3 === 0) {
+        R.O = 1 // forest
+      } else {
+        R.O = 0
+      }
+    }else{
       R.O = 0
     }
   } else {
@@ -686,6 +695,7 @@ c.addEventListener('mousedown', e => {
           B[strcoords(cursor.x, cursor.y)] = placing
           store('B', strcoords(cursor.x, cursor.y), placing)
           O[strcoords(cursor.x, cursor.y)] = 0
+          store('O', strcoords(cursor.x, cursor.y), '0')
         }
       }
     } else if (placing === 4) {
@@ -693,6 +703,8 @@ c.addEventListener('mousedown', e => {
         if (stone >= seaportPrice.stone && wood >= seaportPrice.wood) {
           stone -= seaportPrice.stone
           wood -= seaportPrice.wood
+          storage.setItem('stone', JSON.stringify(stone))
+          storage.setItem('wood', JSON.stringify(wood))
           explore(cursor.x, cursor.y, 5, 'seaport')
           explore(cursor.x, cursor.y, 1)
           B[strcoords(cursor.x, cursor.y)] = placing
